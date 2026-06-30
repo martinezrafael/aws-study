@@ -412,3 +412,63 @@ Como o Load Balancer e IPs estáticos desalocados geram custos na nuvem, realize
 2. **Instância Ubuntu-1:** Na tela inicial, clique nos três pontos e selecione **Delete** (Manteremos apenas a `Ubuntu-2` parada para as próximas aulas).
 3. **Snapshots:** Na aba *Snapshots*, apague o `nginx-snapshot`.
 4. **IP Estático:** Na aba *Networking*, exclua o `Staticip-ubuntu1`. **Atenção:** Manter um IP estático sem nenhuma instância vinculada a ele gera cobranças na AWS!
+
+
+
+---- Aqui está um resumo claro, estruturado e didático sobre os tipos de armazenamento disponíveis no AWS Lightsail:
+
+---
+
+## 💾 Aula: Armazenamento na Nuvem – Bucket vs. Disco
+
+Nesta etapa, o foco muda para o gerenciamento de **Storage (Armazenamento)**. A AWS Lightsail oferece duas soluções distintas para armazenar dados, cada uma com finalidades, custos e comportamentos diferentes: o **Bucket** e o **Disco**.
+
+Antes de começar, lembre-se de iniciar sua instância de testes: na tela inicial, clique nos três pontos da `Ubuntu-2` e selecione **Start**.
+
+---
+
+### 1. Bucket (Armazenamento de Objetos)
+
+O **Bucket** é um serviço de armazenamento de objetos. Ele funciona de forma análoga a serviços como Google Drive, OneDrive ou Dropbox. É uma área externa e isolada da sua máquina virtual.
+
+* **Características:**
+* **Uso ideal:** Repositório de arquivos, backups, imagens de sites (como anexos do WordPress) e documentos.
+* **Vantagens:** Altíssima disponibilidade e durabilidade garantidas pela AWS, além de ser muito barato.
+* **Desvantagens:** A velocidade de acesso (latência) é menor se comparada a um disco conectado diretamente no sistema operacional.
+
+
+* **Preços e Planos (Exemplos):**
+* 5 GB por $1/mês | 100 GB por $3/mês | 250 GB por $5/mês.
+
+
+* **Particularidade do Nome:** O nome do bucket deve ser **único no mundo inteiro** (global), pois ele faz parte de um endereço de internet público (URL).
+* **Como usar:** Na aba *Storage* > *Create bucket* > Escolha o plano e o nome único. Após criado, na aba **Objects**, basta arrastar e soltar arquivos do seu computador para fazer o upload.
+
+---
+
+### 2. Disco (Armazenamento em Bloco Adicional)
+
+O **Disco** (Block Storage) simula um HD ou SSD físico que você compra para instalar diretamente dentro do seu servidor. É a solução ideal para quando a sua VM está ficando sem espaço em disco para o sistema ou banco de dados.
+
+* **Características:**
+* **Uso ideal:** Expandir o espaço interno da VM, instalar aplicações pesadas, bancos de dados e arquivos que exigem leitura/escrita rápida.
+* **Vantagens:** Alta velocidade de acesso e baixa latência por estar "plugado" diretamente na máquina.
+* **Regra de Ouro:** O disco **deve ser criado exatamente na mesma Região e Zona de Disponibilidade (AZ)** da sua instância (ex: Virgínia, Zona B). Discos e instâncias em zonas diferentes não conseguem se conectar.
+
+
+
+#### Passo a Passo para Criação e Vínculo:
+
+1. Acesse a aba **Storage** e clique em **Create disk**.
+2. Altere a localização para a mesma da sua VM (`Virginia, Zone B`).
+3. Escolha o tamanho (ex: 8 GB por $0,80/mês) e defina um nome (ex: `data`). Clique em **Create disk**.
+4. **Anexando à Máquina:** Na tela do disco criado, vá em *Attach to an instance* e selecione a `Ubuntu-2`.
+5. Clique em **Attach**.
+
+> 📌 **Nota Técnica Importante:** Ao finalizar o vínculo, o Lightsail informará o caminho físico do disco (ex: `/dev/xvdf`). Guarde essa informação!
+
+---
+
+### 🚀 Próximo Passo
+
+Diferente do Bucket (que já está pronto para arrastar arquivos), o **Disco adicional** acabou de ser plugado "fisicamente" no servidor virtual. Para que o sistema operacional Ubuntu consiga enxergá-lo e salvar dados nele, o próximo passo será se conectar via SSH para **formatar** (criar um sistema de arquivos) e **montar** (definir uma pasta de acesso) esse novo disco.
