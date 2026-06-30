@@ -180,3 +180,61 @@ ssh -i lightsail-rmerces.pem ubuntu@SEU_IP_AQUI
 
 
 > 💡 **Dica Prática:** Se você não quiser lidar com chaves SSH no seu terminal local ou precisar passar o acesso rápido para outra pessoa, o **botão do terminal (SSH Web)** no painel do Lightsail continua funcionando perfeitamente a um clique de distância.
+
+---
+
+
+Aqui está um resumo claro, estruturado e didático do conteúdo para fixação ou guia de estudos:
+
+---
+
+## ☁️ Aula: Snapshots, Balanceadores de Carga e Alta Disponibilidade
+
+Nesta etapa, o objetivo é evoluir a infraestrutura da aplicação utilizando dois serviços essenciais junto à máquina virtual (VM): **Snapshots** (para cópias de segurança e replicação) e **Load Balancers** (para distribuição de tráfego).
+
+---
+
+### 1. O que é e como criar um Snapshot?
+
+Um **Snapshot** é uma cópia de segurança (backup) do estado da sua máquina virtual em um determinado momento.
+
+> ⚠️ **Boa prática:** Sempre que possível, **pare a instância** antes de tirar um snapshot para evitar a corrupção de dados ativos.
+
+#### Passo a Passo na AWS Lightsail:
+
+1. Na tela inicial, clique nos três pontos da instância (`Ubuntu-1`) e selecione **Manage**.
+2. Clique em **Stop** (e confirme) para desligar a máquina com segurança.
+3. Quando o status mudar para **Stopped**, acesse a aba **Snapshots**.
+4. Em *Manual snapshots*, clique em **Create snapshot**.
+5. Altere o nome para `nginx-snapshot` e clique em **Create**.
+
+**A Estratégia:** Esse snapshot servirá como um "molde" (template). Em vez de configurar uma nova VM do zero, criaremos uma segunda instância idêntica a partir dele, economizando tempo.
+
+---
+
+### 2. Alta Disponibilidade e Zonas de Disponibilidade
+
+**Alta Disponibilidade (High Availability)** significa garantir que a sua aplicação continue funcionando e acessível para os usuários mesmo se uma das máquinas ou parte da infraestrutura sofrer uma falha crítica.
+
+* **Regiões e Zonas:** Os provedores de nuvem (como a AWS) dividem sua infraestrutura em Regiões (ex: Virgínia) e cada região possui múltiplas **Zonas de Disponibilidade (Availability Zones - AZs)**, que são data centers isolados fisicamente.
+* **Estratégia de Resiliência:** Para garantir a alta disponibilidade, não basta ter duas máquinas; elas devem ser distribuídas em **zonas diferentes** (ex: Zona A e Zona B). Se a Zona A cair por um problema elétrico ou climático, a máquina da Zona B assume o tráfego.
+
+---
+
+### 3. Criando a Segunda Instância em Outra Zona
+
+Utilizando o molde criado no passo 1, vamos provisionar a segunda VM em uma zona distinta:
+
+1. Na aba **Snapshots**, clique nos três pontos ao lado do `nginx-snapshot` criado.
+2. Selecione **Create new instance**.
+3. No campo **Select an Availability Zone**, altere a localização da nova máquina para a **Zone B** (garantindo a separação física da `Ubuntu-1`, que está na Zona A).
+4. Defina o nome da nova instância como `Ubuntu-2`.
+5. Mantenha a mesma chave SSH (`lightsail-rmerces`) e clique em **Create instance**.
+
+---
+
+### 🚀 Próximo Passo
+
+Com as duas máquinas idênticas (`Ubuntu-1` na Zona A e `Ubuntu-2` na Zona B) rodando em paralelo, o próximo passo será configurar o **Load Balancer (Balanceador de Carga)** na aba *Networking*. Ele ficará à frente dessas instâncias, recebendo as requisições dos usuários e distribuindo o tráfego entre elas de forma inteligente.
+
+
