@@ -1,884 +1,466 @@
-### Amazon Lightsail: Descomplicando a nuvem
+# Manual de AWS Lightsail: Infraestrutura Simplificada e Resiliência na Nuvem
 
-- Entenda como provisionar de forma simples web apps e instâncias
-- Crie um ambiente de alta disponibilidade de forma simples
-- Aumente a capacidade de armazenamento de sua instância com discos adicionais
-- Aprenda a utilizar snapshots e crie VMs a partir deles
-- Aprenda sobre o gerenciamento de containers dentro do ambiente Lightsail
+**Subtítulo:** Guia Prático de Computação, Armazenamento, Alta Disponibilidade e Contêineres para Profissionais de Tecnologia
 
----
+**Instrutor do Curso Base:** Ricardo Merces
 
-## Resumo do Curso: AWS Lightsail
-
-* **Instrutor:** Ricardo Merces.
-* **O que é o AWS Lightsail:** Uma tecnologia que simplifica o uso do console da AWS por meio de uma interface simples e amigável.
-* **Recursos disponíveis:** Permite gerenciar máquinas virtuais, armazenamento (*storage*), balanceadores de carga (*load balancers*), deploy de aplicações com poucos cliques e gerenciamento de contêineres.
-* **Foco prático do curso:** Criar máquinas virtuais, realizar o deploy de aplicações e explorar as principais funcionalidades da ferramenta.
+**Ano:** 2026
 
 ---
 
-## 📌 Pré-requisitos
+## Sumário
 
-* **Acesso à AWS:** É necessário ter uma conta ativa na AWS.
-* **Atenção ao *Free Tier* (Nível Gratuito):** Fique atento às regras do nível gratuito para entender o que é cobrado e o que é isento de custos.
-
----
-
-## 🚀 Como Acessar o AWS Lightsail
-
-1. Faça login no **Console AWS**.
-2. Na barra de pesquisa superior, digite **"Lightsail"** e selecione a primeira opção.
-3. Você será direcionado para uma interface exclusiva, simples e objetiva, dividida em 6 abas principais:
-* **Instances** (Instâncias/Máquinas Virtuais)
-* **Containers** (Contêineres)
-* **Databases** (Bancos de Dados)
-* **Networking** (Redes)
-* **Storage** (Armazenamento)
-* **Snapshots** (Cópias de segurança/Backups)
+* [Apresentação Geral](https://www.google.com/search?q=%23apresenta%C3%A7%C3%A3o-geral)
+* [Módulo 1: Introdução ao AWS Lightsail e Instâncias Prontas (WordPress)](https://www.google.com/search?q=%23m%C3%B3dulo-1-introdu%C3%A7%C3%A3o-ao-aws-lightsail-e-inst%C3%A2ncias-prontas-wordpress)
+* [Módulo 2: Rede Estratégica, IPs Estáticos e Vinculação de Domínios (DNS)](https://www.google.com/search?q=%23m%C3%B3dulo-2-rede-estrat%C3%A9gica-ips-est%C3%A1ticos-e-vincula%C3%A7%C3%A3o-de-dom%C3%ADnios-dns)
+* [Módulo 3: Infraestrutura Global, Chaves SSH e Instâncias Limpas (Linux)](https://www.google.com/search?q=%23m%C3%B3dulo-3-infraestrutura-global-chaves-ssh-e-inst%C3%A2ncias-limpas-linux)
+* [Módulo 4: Alta Disponibilidade, Snapshots e Balanceadores de Carga](https://www.google.com/search?q=%23m%C3%B3dulo-4-alta-disponibilidade-snapshots-e-balanceadores-de-carga)
+* [Módulo 5: Estratégias de Armazenamento – Buckets vs. Discos Adicionais no Linux](https://www.google.com/search?q=%23m%C3%B3dulo-5-estrat%C3%A9gias-de-armazenamento--buckets-vs-discos-adicionais-no-linux)
+* [Módulo 6: Modernização de Aplicações e Gerenciamento de Contêineres](https://www.google.com/search?q=%23m%C3%B3dulo-6-moderniza%C3%A7%C3%A3o-de-aplica%C3%A7%C3%B5es-e-gerenciamento-de-cont%C3%AAineres)
+* [Considerações Finais e FinOps](https://www.google.com/search?q=%23considera%C3%A7%C3%B5es-finais-e-finops)
 
 ---
 
-## 💻 Criando sua Primeira Instância (WordPress)
+## Apresentação Geral
 
-O foco inicial é colocar uma aplicação no ar rapidamente para entender a simplicidade da ferramenta.
+Seja bem-vindo ao **Manual de AWS Lightsail**. No cenário tecnológico contemporâneo, a computação em nuvem tornou-se o alicerce para o deploy ágil de aplicações. Contudo, a complexidade dos consoles tradicionais muitas vezes atua como uma barreira. O AWS Lightsail surge como uma tecnologia disruptiva que simplifica essa jornada por meio de uma interface amigável e objetiva, ideal para o provisionamento rápido de soluções com previsibilidade de custos.
 
-### Passo 1: Iniciar a criação
-
-Na aba **Instances**, clique no botão **"Create instance"**.
-
-### Passo 2: Escolher o Modelo (*Blueprint*)
-
-No campo "Select a blueprint", existem duas opções:
-
-* **OS Only:** Instala apenas o Sistema Operacional limpo (Linux/Windows).
-* **Apps + OS:** Instala o Sistema Operacional já com uma aplicação configurada.
-
-> **Ação:** Selecione **"Apps + OS"** e clique em **WordPress**.
-
-### Passo 3: Plano e Precificação (*Instance Plan*)
-
-* Deixe a chave SSH no padrão (*default*).
-* Escolha o plano que melhor se adapta ao seu bolso ou necessidade.
-* O plano inicial custa **$3,50/mês** (1 CPU e 512 MB de RAM) e oferece **3 meses gratuitos** para contas novas no *Free Tier*.
-
-> **Ação:** Selecione o plano de **$3,50**.
-
-### Passo 4: Finalizar
-
-* Mantenha o nome padrão da máquina (**"WordPress-1"**).
-* Clique no botão **"Create instance"** no final da página.
+Esta apostila foi desenhada utilizando os princípios de *microlearning* para guiar você do nível operacional básico (instâncias prontas de um clique) ao nível avançado de arquitetura resiliente (balanceamento de carga, discos Linux automatizados e contêineres gerenciados). Nosso objetivo é torná-lo autônomo na nuvem AWS, desenvolvendo a competência técnica alinhada a uma forte mentalidade de *FinOps* (otimização de custos).
 
 ---
 
-Aqui está um resumo claro, didático e focado nos pontos mais importantes desse aprendizado prático:
+## Módulo 1: Introdução ao AWS Lightsail e Instâncias Prontas (WordPress)
+
+### Objetivos de Aprendizagem
+
+Ao final deste capítulo, você será capaz de:
+
+* Navegar pelas 6 abas principais da interface exclusiva do AWS Lightsail.
+
+
+* Provisionar um web app pronto utilizando o modelo de *Blueprint* (*Apps + OS*).
+
+
+* Extrair credenciais administrativas através do cliente SSH Web integrado.
+
+
+
+### Teoria
+
+O AWS Lightsail simplifica o ecossistema de nuvem encapsulando recursos complexos em um console direto, dividido em **6 pilares estruturais**: *Instances, Containers, Databases, Networking, Storage* e *Snapshots*.
+
+A velocidade de deploy é impulsionada pelos *Blueprints*. Ao escolher a abordagem **Apps + OS**, a AWS entrega não apenas a máquina virtual limpa, mas também a pilha de software (sistema operacional, servidor web e banco de dados) configurada e integrada de forma automática, como no caso do WordPress.
+
+#### Cenário de Acesso e Credenciais
+
+Diferente da nuvem tradicional, onde o analista precisa configurar chaves criptográficas locais no terminal para o primeiro acesso, o Lightsail possui um cliente SSH Web no navegador. No caso do WordPress (empacotado pela Bitnami), as chaves administrativas de segurança ficam gravadas em um arquivo local na raiz da máquina virtual (`bitnami_credentials`), acessível via comando de leitura de texto (`cat`).
+
+> **⚠️ ATENÇÃO (*Free Tier*):** Contas novas possuem benefícios no nível gratuito (como 3 meses de uso em planos de entrada). Contudo, monitore o painel constantemente para entender os limites de consumo e evitar cobranças automáticas após o período de teste.
+> 
+> 
+
+### Resumo do Capítulo
+
+* [ ] Compreendi a divisão das 6 abas principais do console Lightsail.
+
+
+* [ ] Realizei o deploy de uma instância automatizada utilizando *Blueprint* (*Apps + OS*).
+
+
+* [ ] Aprendi a capturar credenciais nativas através do terminal SSH Web integrado.
+
+
+
+### Exercícios de Fixação
+
+**1. Qual aba do painel do AWS Lightsail deve ser selecionada para iniciar a criação de uma máquina virtual com WordPress pré-configurado?**
+a) Networking
+b) Storage
+c) Instances
+d) Containers
+
+**2. Qual comando é utilizado dentro do terminal SSH Web para ler as credenciais de administrador geradas automaticamente na instância do WordPress?**
+a) `chmod 400`
+b) `df -h`
+c) `sudo sfdisk -l`
+d) `cat bitnami_credentials`
 
 ---
 
-## 🔑 1. Acessando a Aplicação e Pegando as Credenciais
+## Módulo 2: Rede Estratégica, IPs Estáticos e Vinculação de Domínios (DNS)
 
-Assim que a instância do WordPress termina de ser criada, você já pode acessá-la:
+### Objetivos de Aprendizagem
 
-* **Acesso público:** Basta copiar o **IP público** que aparece no cartão da instância e colá-lo no navegador.
-* **Painel Administrativo:** Para gerenciar o WordPress, adicione `/wp-admin` ao final do IP no navegador.
+Ao final deste capítulo, você será capaz de:
 
-### Como descobrir a senha do WordPress:
+* Justificar a obrigatoriedade do uso de IPs Estáticos em ambientes de produção.
 
-Em vez de configurar chaves e abrir terminais complexos, o Lightsail oferece um **cliente SSH Web** direto no navegador (um ícone de terminal no canto da instância).
 
-1. Clique no ícone do **SSH Web** para abrir o terminal da máquina.
-2. Digite o comando: `cat bitnami_credentials`
-3. O terminal exibirá o usuário padrão (`user`) e a senha gerada automaticamente.
+* Mapear o impacto financeiro de recursos de rede desalocados (órfãos).
 
----
 
-## 📌 2. Configurando um IP Estático (Indispensável para Produção)
-
-Por padrão, se uma instância for reiniciada ou recriada, o IP público muda. Para evitar que seu site saia do ar, é necessário fixar um IP.
-
-* **Como fazer:** Vá em `Manage` (gerenciar a instância) > aba `Networking` > clique em **"Create static IP"**. Dê um nome amigável (ex: `Staticip-wp`) e clique em **Create**.
-* **Regra de ouro dos custos 💰:** O IP estático é **gratuito** desde que esteja **associado a uma instância ativa**. Se você criar um IP estático e deixá-lo solto (sem nenhuma máquina vinculada), a AWS cobrará por ele.
-
----
-
-## 🌐 3. Vinculando um Domínio (DNS)
-
-Para que os usuários não precisem digitar um número de IP para acessar o site, vinculamos um nome de domínio (ex: `seusite.com`).
-
-1. **Comprar o domínio:** O instrutor utiliza o site *Namecheap* (uma opção externa e barata para testes).
-2. **Configurar o DNS:** Dentro do painel do seu domínio (na aba de DNS Avançado), adicione um novo registro:
-* **Type:** `A Record` (Aponta um nome para um IP)
-* **Host:** `www` (ou `@` para o domínio principal)
-* **Value:** O seu **IP Estático** do Lightsail.
-* **TTL:** `1 min` (apenas para o teste propagar rápido; em produção o padrão é 60 min).
+* Configurar registros do tipo "A Record" para vinculação de domínios externos (DNS).
 
 
 
-> ⏱️ **Nota:** Após salvar, o DNS leva alguns minutos para propagar. Você pode testar no terminal usando o comando `dig [www.seu-dominio.com](https://www.seu-dominio.com)` para checar se ele já responde com o IP correto.
+### Teoria
 
----
-Aqui está um resumo claro, didático e focado nos principais pontos da aula para ajudar nos seus estudos:
+Por padrão, as instâncias em nuvem recebem um endereço IP público dinâmico. Sempre que a máquina passa por uma ação de reinicialização ou desligamento, esse endereço é alterado pelo provedor, o que quebraria qualquer comunicação externa direta de usuários ou domínios. A mitigação desse risco exige a alocação de um **IP Estático**.
 
----
+#### Regra de Ouro dos Custos em Redes (FinOps)
 
-## 🧼 1. Como Eliminar uma Instância e Fazer a "Faxina"
+A AWS adota uma política de cobrança estrita para IPs estáveis: o IP Estático é **gratuito** enquanto estiver associado a uma instância ativa. Se a máquina for excluída ou o IP for desvinculado e mantido solto ("órfão") na conta, a AWS passará a cobrar taxas por hora de retenção daquele recurso, visto que ele consome um endereço público escasso do provedor.
 
-Para evitar cobranças surpresas, é essencial limpar todos os recursos associados ao excluir um projeto.
+#### Acoplamento de Domínios (DNS)
 
-1. **Excluir a Instância:** Na tela inicial do Lightsail, clique nos três pontos no cartão da máquina virtual e selecione **"Delete"**. Confirme a ação.
-2. **Excluir o IP Estático:** Apagar a máquina **não** apaga o IP estático automaticamente. Como IPs estáticos sem uso geram custos, vá até a aba **"Networking"**, clique nos três pontos sobre o IP estático criado e selecione **"Delete"**.
+Para converter o acesso numérico (IP) em uma URL amigável, utiliza-se a tabela de DNS do registrador do domínio (ex: *Namecheap*). O registro essencial é o **A Record**, mapeando o nome (*Host* `www` ou `@`) diretamente ao valor do IP Estático do Lightsail.
 
----
+| Tipo de Registro | Host (Nome) | Valor (Destino) | TTL Recomendado (Ajuste Rápido) |
+| --- | --- | --- | --- |
+| **A Record** | `www` ou `@` | IP Estático Lightsail | 1 minuto (para propagação rápida em testes) |
 
-## 🌍 2. Infraestrutura Global: Regiões e Zonas de Disponibilidade (AZs)
+### Resumo do Capítulo
 
-Antes de criar qualquer máquina virtual (VM), você deve definir onde ela ficará hospedada fisicamente:
+* [ ] Entendi por que o IP dinâmico padrão não deve ser usado em produção.
 
-* **Região (Region):** É a localização geográfica geral (ex: *Virginia - us-east-1*).
-* **Zona de Disponibilidade (Availability Zone - AZ):** São os data centers físicos isolados dentro de uma mesma região (ex: *Zone A - us-east-1a*).
-* **Conceito de Alta Disponibilidade:** Criar aplicações distribuídas em mais de uma zona garante que, se um data center cair devido a uma falha física, os outros mantêm seu site no ar.
+
+* [ ] Fixei o conceito de custos associados a IPs estáticos desalocados.
+
+
+* [ ] Aprendi a mapear um domínio para a nuvem usando o registro *A Record*.
+
+
+
+### Exercícios de Fixação
+
+**1. O que acontece com o custo de um IP Estático no AWS Lightsail se ele for mantido na conta sem nenhuma instância virtual vinculada a ele?**
+a) Permanece totalmente gratuito.
+b) É deletado automaticamente pela AWS após 5 minutos.
+c) Passa a gerar cobranças financeiras na conta do usuário.
+d) É convertido em um registro DNS do tipo A Record de forma automática.
+
+**2. Qual o tipo de registro DNS deve ser criado no painel do domínio para apontar o nome do site (ex: [www.site.com](https://www.google.com/search?q=https%3A%2F%2Fwww.site.com)) para o número de IP Estático da máquina na nuvem?**
+a) CNAME
+b) A Record
+c) TXT
+d) MX
 
 ---
 
-## 🛠️ 3. Criando uma Máquina Virtual Limpa (Ubuntu Linux)
+## Módulo 3: Infraestrutura Global, Chaves SSH e Instâncias Limpas (Linux)
 
-Em vez de usar uma aplicação pronta (como o WordPress), o instrutor cria uma máquina virtual pura:
+### Objetivos de Aprendizagem
 
-* **Plataforma:** Linux/Unix.
-* **Blueprint:** "OS Only" ➔ **Ubuntu 20.04 LTS**.
-* **Localização:** Mantida no padrão (Virginia / Zone A).
+Ao final deste capítulo, você será capaz de:
 
----
+* Diferenciar geograficamente Regiões e Zonas de Disponibilidade (AZs).
 
-## 🔑 4. Gerenciamento e Conexão via Chaves SSH
 
-Para se conectar com segurança a um servidor Linux, a AWS utiliza pares de chaves criptográficas (`.pem`).
+* Gerenciar pares de chaves criptográficas (`.pem`) com permissões seguras no Linux/Mac.
 
-### Criando e baixando a chave:
 
-1. No menu de criação, vá em *Change SSH key pair* > **"Create New"**.
-2. Dê um nome (ex: `lightsail-rmerces`) e clique em **"Generate key pair"**.
-3. **Atenção:** Faça o download da chave privada imediatamente. A AWS só permite o download **uma única vez**. Se perder, precisará criar outra.
-4. Conclua a criação da instância (nomeada como `Ubuntu-1`).
+* Provisionar uma instância limpa com a opção *OS Only* (Ubuntu Linux).
 
-### Conectando via Terminal Local (Passo a Passo):
 
-Uma vez baixada a chave no seu computador, siga os comandos:
 
-1. **Ajustar as permissões (Obrigatório no Linux/Mac):** O arquivo de chave não pode ser público. Defina permissão de leitura apenas para o dono:
+### Teoria
+
+O desenho de sistemas resilientes exige a compreensão da arquitetura global dos provedores de nuvem. Uma **Região** representa uma localização geográfica ampla (ex: Virgínia do Norte - *us-east-1*). Dentro de cada região, existem múltiplos data centers físicos isolados e independentes, chamados de **Zonas de Disponibilidade (Availability Zones - AZs)** (ex: *Zone A, Zone B*).
+
+#### Acesso Seguro via Chaves Privadas
+
+Diferente das instâncias automatizadas por *Blueprints*, o gerenciamento de servidores puros (abordagem **OS Only**, como o Ubuntu) exige conexão segura externa via protocolo SSH através de pares de chaves criptográficas de formato `.pem`.
+
+> **⚠️ CRÍTICO:** A AWS só permite o download da chave privada **uma única vez**, no momento de sua criação. Se o arquivo for perdido, o acesso externo local ao servidor fica impossibilitado permanentemente.
+> 
+> 
+
+No ecossistema Unix (Linux e macOS), o arquivo de chave privada baixado exige o ajuste estrito de privilégios de acesso para impedir que outros usuários do sistema operacional local leiam o arquivo (o que faria o cliente SSH rejeitar a conexão por falta de segurança). Aplica-se o comando de alteração de permissão `chmod 400` (leitura exclusiva para o dono).
+
 ```bash
-chmod 400 lightsail-rmerces.pem
+# Ajuste de permissão obrigatório
+chmod 400 minha-chave.pem
+
+# Comando de conexão externa padrão
+ssh -i minha-chave.pem usuario_padrao@IP_DO_SERVIDOR
 
 ```
 
+### Resumo do Capítulo
 
-2. **Conectar ao servidor:** Use o comando `ssh`, apontando o arquivo da chave, o usuário padrão do sistema (`ubuntu`) e o IP da máquina:
-```bash
-ssh -i lightsail-rmerces.pem ubuntu@SEU_IP_AQUI
+* [ ] Aprendi a diferença prática entre Regiões e Zonas de Disponibilidade.
+
+
+* [ ] Provisionei uma máquina virtual limpa com Ubuntu Linux via *OS Only*.
+
+
+* [ ] Compreendi a criticidade e a alteração de permissões de arquivos `.pem`.
+
+
+
+### Exercícios de Fixação
+
+**1. Para garantir o acesso seguro local via terminal a uma máquina virtual pura (Ubuntu) na AWS, qual o nível de permissão recomendado pelo protocolo Linux para o arquivo de chave privada (.pem)?**
+a) `chmod 777` (Acesso total público)
+b) `chmod 400` (Leitura exclusiva do dono)
+c) `chmod 000` (Bloqueio total)
+d) `chmod 200` (Escrita exclusiva)
+
+**2. O que representa uma "Zona de Disponibilidade" (Availability Zone) na infraestrutura global de nuvem?**
+a) Um cabo submarino que interliga continentes.
+b) Um conjunto de servidores virtuais compartilhados na internet pública.
+c) Um data center físico isolado e independente localizado dentro de uma Região geográfica.
+d) Um painel exclusivo para o gerenciamento de faturamento.
+
+---
+
+## Módulo 4: Alta Disponibilidade, Snapshots e Balanceadores de Carga
+
+### Objetivos de Aprendizagem
+
+Ao final deste capítulo, você será capaz de:
+
+* Aplicar a estratégia de resiliência distribuindo servidores em Zonas de Disponibilidade distintas.
+
+
+* Utilizar Snapshots como moldes de replicação em massa de servidores virtuais.
+
+
+* Configurar um *Load Balancer* com verificação de integridade (*Health Check*) customizada.
+
+
+
+### Teoria
+
+A resiliência de um sistema mede-se pela sua capacidade de se manter online diante de incidentes críticos em infraestrutura (como quedas de energia ou falhas de hardware em um prédio de servidores).
+
+A estratégia clássica de **Alta Disponibilidade (High Availability)** baseia-se na eliminação de pontos únicos de falha. Não basta clonar servidores: eles precisam ser hospedados em zonas físicas geograficamente separadas (*Zone A* e *Zone B*).
+
+#### O Ciclo de Replicação com Snapshots
+
+Um **Snapshot** atua capturando o estado exato dos dados de um disco virtual em um determinado momento.
+
+* *Boa Prática:* Realizar o desligamento seguro da máquina virtual (*Stop*) antes de iniciar o snapshot, mitigando riscos de corrupção em dados ativos no sistema operacional.
+
+
+* *Ação Estratégica:* O snapshot inativo pode ser utilizado como "molde" (*template*) para disparar uma nova instância idêntica na *Zone B*, herdando configurações e arquivos de forma ágil.
+
+
+
+#### O Papel do Load Balancer
+
+O balanceador de carga atua como um intermediário inteligente na rede. Ele centraliza o tráfego dos usuários sob um único endereço DNS público e distribui as requisições entre as instâncias vinculadas (*Target Instances*).
+
+Essa inteligência depende diretamente do **Health Check** (Verificação de Integridade): o balanceador monitora constantemente o status das máquinas acessando um arquivo específico (ex: `server.txt`). Caso uma das zonas físicas falhe e a instância daquela zona pare de responder com sucesso ao teste de integridade, o balanceador redireciona 100% das requisições para a máquina sobrevivente na outra zona, garantindo zero interrupção para o usuário.
+
+```
+                     [ TRÁFEGO DE USUÁRIOS ]
+                                ⬇️
+                       [ LOAD BALANCER ]
+                                ⬇️
+         +----------------------+----------------------+
+         ⬇️ (Zona A)                                   ⬇️ (Zona B)
+  [ INSTÂNCIA UBUNTU-1 ]                        [ INSTÂNCIA UBUNTU-2 ]
+  Status: Ativa (Saudável)                      Status: Desligada/Falha
+  (Recebe 100% do tráfego)                      (Isolada pelo Health Check)
 
 ```
 
+> **💰 ALERTA DE FINOPS:** Diferente de instâncias e IPs acoplados, o *Load Balancer* do Lightsail possui um custo fixo de manutenção elevado (estimado em $18/mês) e **não possui cobertura pelo nível gratuito** (*Free Tier*). Deve ser removido imediatamente após a validação de testes.
+> 
+> 
+
+### Resumo do Capítulo
+
+* [ ] Aprendi a clonar infraestruturas através do uso de Snapshots.
 
 
-> 💡 **Dica Prática:** Se você não quiser lidar com chaves SSH no seu terminal local ou precisar passar o acesso rápido para outra pessoa, o **botão do terminal (SSH Web)** no painel do Lightsail continua funcionando perfeitamente a um clique de distância.
-
----
+* [ ] Desenhei uma arquitetura distribuída em múltiplas Zonas de Disponibilidade (AZs).
 
 
-Aqui está um resumo claro, estruturado e didático do conteúdo para fixação ou guia de estudos:
+* [ ] Configurei e testei cenários de failover utilizando balanceamento de carga e *Health Check*.
 
----
 
-## ☁️ Aula: Snapshots, Balanceadores de Carga e Alta Disponibilidade
 
-Nesta etapa, o objetivo é evoluir a infraestrutura da aplicação utilizando dois serviços essenciais junto à máquina virtual (VM): **Snapshots** (para cópias de segurança e replicação) e **Load Balancers** (para distribuição de tráfego).
+### Exercícios de Fixação
 
----
+**1. Por que é considerada uma boa prática desligar uma instância virtual antes de realizar a criação de um Manual Snapshot de seu disco?**
+a) Para reduzir o custo de armazenamento do snapshot na AWS.
+b) Para alterar automaticamente o sistema de arquivos para ext4.
+c) Para evitar riscos de corrupção de arquivos e dados que estejam em uso ativo pelo sistema.
+d) Para obrigar o balanceador de carga a desativar o IPv6.
 
-### 1. O que é e como criar um Snapshot?
-
-Um **Snapshot** é uma cópia de segurança (backup) do estado da sua máquina virtual em um determinado momento.
-
-> ⚠️ **Boa prática:** Sempre que possível, **pare a instância** antes de tirar um snapshot para evitar a corrupção de dados ativos.
-
-#### Passo a Passo na AWS Lightsail:
-
-1. Na tela inicial, clique nos três pontos da instância (`Ubuntu-1`) e selecione **Manage**.
-2. Clique em **Stop** (e confirme) para desligar a máquina com segurança.
-3. Quando o status mudar para **Stopped**, acesse a aba **Snapshots**.
-4. Em *Manual snapshots*, clique em **Create snapshot**.
-5. Altere o nome para `nginx-snapshot` e clique em **Create**.
-
-**A Estratégia:** Esse snapshot servirá como um "molde" (template). Em vez de configurar uma nova VM do zero, criaremos uma segunda instância idêntica a partir dele, economizando tempo.
+**2. Qual o comportamento do Load Balancer caso o monitoramento de Health Check detecte que uma das duas instâncias vinculadas parou de responder?**
+a) O balanceador desliga a segunda máquina por segurança.
+b) O balanceador passa a cobrar pelo IP estático da máquina ativa.
+c) O balanceador interrompe todo o tráfego do site até que o analista faça uma revisão humana.
+d) O balanceador isola a máquina com falha e direciona o tráfego dos usuários automaticamente para a máquina saudável.
 
 ---
 
-### 2. Alta Disponibilidade e Zonas de Disponibilidade
+## Módulo 5: Estratégias de Armazenamento – Buckets vs. Discos Adicionais no Linux
 
-**Alta Disponibilidade (High Availability)** significa garantir que a sua aplicação continue funcionando e acessível para os usuários mesmo se uma das máquinas ou parte da infraestrutura sofrer uma falha crítica.
+### Objetivos de Aprendizagem
 
-* **Regiões e Zonas:** Os provedores de nuvem (como a AWS) dividem sua infraestrutura em Regiões (ex: Virgínia) e cada região possui múltiplas **Zonas de Disponibilidade (Availability Zones - AZs)**, que são data centers isolados fisicamente.
-* **Estratégia de Resiliência:** Para garantir a alta disponibilidade, não basta ter duas máquinas; elas devem ser distribuídas em **zonas diferentes** (ex: Zona A e Zona B). Se a Zona A cair por um problema elétrico ou climático, a máquina da Zona B assume o tráfego.
+Ao final deste capítulo, você será capaz de:
 
----
+* Diferenciar os modelos de armazenamento de Objetos (Buckets) e em Bloco (Discos).
 
-### 3. Criando a Segunda Instância em Outra Zona
 
-Utilizando o molde criado no passo 1, vamos provisionar a segunda VM em uma zona distinta:
+* Executar as 4 etapas de montagem de novos hardwares no Linux (*sfdisk, fdisk, mkfs* e *mount*).
 
-1. Na aba **Snapshots**, clique nos três pontos ao lado do `nginx-snapshot` criado.
-2. Selecione **Create new instance**.
-3. No campo **Select an Availability Zone**, altere a localização da nova máquina para a **Zone B** (garantindo a separação física da `Ubuntu-1`, que está na Zona A).
-4. Defina o nome da nova instância como `Ubuntu-2`.
-5. Mantenha a mesma chave SSH (`lightsail-rmerces`) e clique em **Create instance**.
 
----
+* Automatizar a montagem persistente de discos editando o arquivo estruturado `/etc/fstab`.
 
-### 🚀 Próximo Passo
 
-Com as duas máquinas idênticas (`Ubuntu-1` na Zona A e `Ubuntu-2` na Zona B) rodando em paralelo, o próximo passo será configurar o **Load Balancer (Balanceador de Carga)** na aba *Networking*. Ele ficará à frente dessas instâncias, recebendo as requisições dos usuários e distribuindo o tráfego entre elas de forma inteligente.
 
+### Teoria
 
----
+A gestão eficiente de dados na nuvem exige a seleção do modelo correto de *Storage* com base na latência e no formato dos arquivos:
 
-Aqui está um resumo claro, estruturado e didático do conteúdo para guiar seus estudos:
+* **Bucket (Armazenamento de Objetos):** Funciona como um repositório isolado e externo à máquina virtual (análogo ao Google Drive). Possui alta durabilidade, baixo custo e exige nomes globais exclusivos no mundo inteiro para a composição de sua URL de acesso. Ideal para mídias, anexos e backups.
 
----
 
-## ☁️ Aula: Padronização de Instâncias e Identificadores para o Load Balancer
+* **Disco Adicional (Armazenamento em Bloco):** Simula um HD/SSD físico conectado de forma direta à placa-mãe do servidor. Exige menor latência e maior velocidade, sendo ideal para expansão de sistemas e bancos de dados. **Restrição física:** Deve ser criado obrigatoriamente na mesma Região e Zona de Disponibilidade da instância que irá utilizá-lo.
 
-O objetivo desta etapa é garantir que as duas instâncias (`Ubuntu-1` e `Ubuntu-2`) estejam **idênticas em configuração**, possuam **IPs que não mudam** e tenham **identificadores exclusivos** para sabermos qual servidor está respondendo quando instalarmos o balanceador de carga.
 
----
 
-### 1. Configuração de Rede: IPs Estáticos e IPv6
+#### Ciclo de Preparação de um Novo Disco no Linux
 
-Quando reiniciamos ou iniciamos uma instância que estava parada (como a `Ubuntu-1`), o provedor de nuvem costuma alterar o seu endereço IP público. Para evitar que nossa aplicação perca a comunicação, precisamos fixar esses IPs.
+Quando anexado a uma instância Linux, o novo disco em branco (ex: `/dev/xvdf`) passa por 4 etapas operacionais via terminal para se tornar útil:
 
-* **Alocando IPs Estáticos:**
-1. No painel da Lightsail, inicie a `Ubuntu-1` clicando em **Start**.
-2. Para cada máquina, vá em **Manage** ➡️ aba **Networking** ➡️ **Create static IP**.
-3. Nomeie os IPs de forma organizada (ex: `Staticip-ubuntu1` para a primeira e `Staticip-ubuntu2` para a segunda).
+1. **Reconhecimento:** Mapeamento físico do hardware via comando `sudo sfdisk -l`.
 
 
-* **Desabilitando o IPv6 na Ubuntu-2:**
-* Como a `Ubuntu-2` veio com o IPv6 ativado por padrão (e a `Ubuntu-1` não), precisamos desativá-lo para que ambas as máquinas fiquem perfeitamente iguais.
-* Acesse a aba **Networking** da `Ubuntu-2` e, em *IPv6 networking*, desabilite a opção.
+2. **Particionamento:** Criação da estrutura lógica de alocação de blocos via comando interativo `sudo fdisk /dev/xvdf` (comandos internos `n` para nova, `p` para primária e `w` para salvar/escrever).
 
 
+3. **Formatação:** Instalação do Sistema de Arquivos (*File System*) na partição gerada usando o padrão do Linux via comando `sudo mkfs.ext4 /dev/xvdf1`.
 
----
 
-### 2. Criando Identificadores nos Servidores (server.txt)
+4. **Montagem (*Mount*):** Associação da partição lógica formatada a um diretório físico do sistema de arquivos através do comando `sudo mount /dev/xvdf1 /mnt/data/`.
 
-Para testar o funcionamento do futuro *Load Balancer*, precisamos de uma forma de diferenciar qual máquina está respondendo a cada requisição. Criaremos um arquivo de texto simples dentro do diretório do servidor web (Nginx).
 
-#### No Servidor 1 (`Ubuntu-1`):
 
-1. Conecte-se via terminal usando a chave SSH:
-```bash
-ssh -i lightsail-rmerces.pem ubuntu@IP_DA_UBUNTU_1
+#### Persistência e Automatização com o arquivo `fstab`
 
-```
-
-
-2. Navegue até a pasta pública do Nginx:
-```bash
-cd /var/www/html/
-
-```
-
-
-3. Crie o arquivo identificador:
-```bash
-sudo vi server.txt
-
-```
-
-
-* *Escreva dentro do arquivo:* `SERVIDOR UBUNTU - 1` e salve.
-
-
-
-#### No Servidor 2 (`Ubuntu-2`):
-
-1. Saia do primeiro servidor (`exit`) e conecte-se no segundo utilizando o IP da `Ubuntu-2`.
-2. Repita o processo no diretório `/var/www/html/` criando o arquivo `server.txt`.
-* *Escreva dentro do arquivo:* `SERVIDOR UBUNTU - 2` e salve.
-
-
-
----
-
-### 3. Solução de Problemas Comuns (Troubleshooting)
-
-Se ao tentar acessar no navegador o endereço `http://IP_DA_MAQUINA/server.txt` a página não carregar, revise os três pontos abaixo:
-
-#### A. O serviço Nginx está ativo?
-
-Após reiniciar uma máquina, o serviço pode não subir sozinho. Para ligá-lo e garantir que ele **inicie automaticamente** em futuros reboots, use:
-
-```bash
-# Garante que o Nginx inicie junto com o sistema
-sudo systemctl enable nginx
-
-# Inicia o serviço imediatamente
-sudo service nginx start
-
-```
-
-#### B. A porta 80 está liberada no Firewall?
-
-O Nginx responde na porta HTTP padrão (80). Verifique se a regra existe na aba **Networking** ➡️ **IPv4 Firewall**. A tabela deve conter:
-
-* **HTTP | TCP | 80 | Any IPv4 address**
-* *Se não existir, clique em **Add rule** para adicioná-la.*
-
----
-
-### 🎯 Resultado Esperado
-
-Ao final desta configuração, você terá duas instâncias isoladas e prontas. Ao testar no navegador, os acessos diretos devem retornar os identificadores corretos:
-
-* `http://IP_ESTATICO_1/server.txt` ➡️ Exibe: **SERVIDOR UBUNTU - 1**
-* `http://IP_ESTATICO_2/server.txt` ➡️ Exibe: **SERVIDOR UBUNTU - 2**
-
-Com o ambiente nivelado e testado, a infraestrutura está pronta para receber o **Load Balancer**, que distribuirá as requisições entre esses dois servidores automaticamente.
-
-
-
-
----
-
-
-Aqui está um resumo claro, estruturado e didático sobre a criação, configuração e testes de um Balanceador de Carga:
-
----
-
-## ☁️ Aula: Configurando um Load Balancer e Testando Alta Disponibilidade
-
-O **Load Balancer (Balanceador de Carga)** atua como um intermediário inteligente (ou um "guarda de trânsito") que fica à frente dos seus servidores. Ele recebe todas as requisições dos usuários e as distribui entre as instâncias disponíveis, garantindo que o ambiente suporte mais acessos e continue funcionando mesmo se uma máquina falhar.
-
----
-
-### 1. Criando o Load Balancer na AWS Lightsail
-
-1. Na tela inicial da Lightsail, acesse a aba **Networking** e clique em **Create load balancer**.
-2. **Configuração Inicial:** Mantenha a opção **HTTP** (a porta padrão 80). Para HTTPS, seria necessário configurar um certificado de segurança.
-3. **Identificação:** Mantenha o nome padrão `LoadBalancer-1`.
-4. **Custo:** Fique atento! O Load Balancer **não faz parte do nível gratuito (free tier)** e possui um custo estimado de $18/mês. Por isso, a recomendação é excluí-lo logo após o término dos testes.
-5. Clique em **Create load balancer**.
-
----
-
-### 2. Vinculando Instâncias e Configurando o *Health Check*
-
-Após criar o balanceador, você precisa apontar quais máquinas responderão por ele e como ele saberá se elas estão funcionando.
-
-* **Target Instances (Instâncias Alvo):** Na página do balanceador, selecione a instância `Ubuntu-1` e clique em **Attach**. Em seguida, clique em **Attach another** e anexe a `Ubuntu-2`.
-* **Health Check (Verificação de Integridade):** É o teste que o balanceador faz constantemente para saber se o servidor está "saudável". Se uma máquina parar de responder, o balanceador para de enviar tráfego para ela.
-* **Customização:** Clique em **Customize health checking** e mude o arquivo de teste para o `server.txt` (criado na aula anterior).
-* **Como funciona:** O Load Balancer tentará acessar `http://IP/server.txt`. Se a máquina responder com sucesso, ela continua na fila de distribuição.
-
-
-
----
-
-### 3. Testando a Alta Disponibilidade na Prática
-
-No topo da página do Lightsail, você encontrará o **DNS name** (um endereço web longo gerado para o seu balanceador).
-
-1. Copie esse endereço DNS e abra-o em uma nova aba do navegador.
-2. Adicione `/server.txt` ao final da URL.
-3. **O Teste de Carga:** Ao atualizar (dar F5) a página várias vezes, você verá o texto alternar entre **"SERVIDOR UBUNTU - 1"** e **"SERVIDOR UBUNTU - 2"**. Isso prova que o balanceador está dividindo o trabalho entre as duas máquinas.
-4. **Simulando uma Falha:** Vá até a tela inicial da Lightsail e dê um **Stop** na instância `Ubuntu-2`.
-5. **O Resultado:** Ao voltar na aba do balanceador e atualizar a página, o IPv4 do Firewall ou o Health Check detectará a queda da `Ubuntu-2`. A partir daí, 100% dos acessos serão direcionados automaticamente para a `Ubuntu-1` (**"SERVIDOR UBUNTU - 1"**), mantendo o site no ar sem nenhuma interrupção para o usuário.
-
----
-
-### 4. Monitoramento e Alarmes
-
-Na aba **Metrics** do seu balanceador, você pode usar a seção **Alarms** para se prevenir:
-
-* É possível configurar um alarme para te notificar (por e-mail ou SMS) caso o número de instâncias saudáveis mude.
-* *Exemplo prático:* Criar um alerta se o ambiente tiver "menos de 2 instâncias operando por 5 minutos". Em ambientes reais, isso avisa a equipe de TI antes que o serviço caia por completo.
-
----
-
-### 🛑 Limpeza de Ambiente (Evitando Cobranças)
-
-Como o Load Balancer e IPs estáticos desalocados geram custos na nuvem, realize os seguintes passos de exclusão ao finalizar o aprendizado:
-
-1. **Load Balancer:** Na página dele, clique nos três pontos no topo e selecione **Delete**.
-2. **Instância Ubuntu-1:** Na tela inicial, clique nos três pontos e selecione **Delete** (Manteremos apenas a `Ubuntu-2` parada para as próximas aulas).
-3. **Snapshots:** Na aba *Snapshots*, apague o `nginx-snapshot`.
-4. **IP Estático:** Na aba *Networking*, exclua o `Staticip-ubuntu1`. **Atenção:** Manter um IP estático sem nenhuma instância vinculada a ele gera cobranças na AWS!
-
-
-
----- Aqui está um resumo claro, estruturado e didático sobre os tipos de armazenamento disponíveis no AWS Lightsail:
-
----
-
-## 💾 Aula: Armazenamento na Nuvem – Bucket vs. Disco
-
-Nesta etapa, o foco muda para o gerenciamento de **Storage (Armazenamento)**. A AWS Lightsail oferece duas soluções distintas para armazenar dados, cada uma com finalidades, custos e comportamentos diferentes: o **Bucket** e o **Disco**.
-
-Antes de começar, lembre-se de iniciar sua instância de testes: na tela inicial, clique nos três pontos da `Ubuntu-2` e selecione **Start**.
-
----
-
-### 1. Bucket (Armazenamento de Objetos)
-
-O **Bucket** é um serviço de armazenamento de objetos. Ele funciona de forma análoga a serviços como Google Drive, OneDrive ou Dropbox. É uma área externa e isolada da sua máquina virtual.
-
-* **Características:**
-* **Uso ideal:** Repositório de arquivos, backups, imagens de sites (como anexos do WordPress) e documentos.
-* **Vantagens:** Altíssima disponibilidade e durabilidade garantidas pela AWS, além de ser muito barato.
-* **Desvantagens:** A velocidade de acesso (latência) é menor se comparada a um disco conectado diretamente no sistema operacional.
-
-
-* **Preços e Planos (Exemplos):**
-* 5 GB por $1/mês | 100 GB por $3/mês | 250 GB por $5/mês.
-
-
-* **Particularidade do Nome:** O nome do bucket deve ser **único no mundo inteiro** (global), pois ele faz parte de um endereço de internet público (URL).
-* **Como usar:** Na aba *Storage* > *Create bucket* > Escolha o plano e o nome único. Após criado, na aba **Objects**, basta arrastar e soltar arquivos do seu computador para fazer o upload.
-
----
-
-### 2. Disco (Armazenamento em Bloco Adicional)
-
-O **Disco** (Block Storage) simula um HD ou SSD físico que você compra para instalar diretamente dentro do seu servidor. É a solução ideal para quando a sua VM está ficando sem espaço em disco para o sistema ou banco de dados.
-
-* **Características:**
-* **Uso ideal:** Expandir o espaço interno da VM, instalar aplicações pesadas, bancos de dados e arquivos que exigem leitura/escrita rápida.
-* **Vantagens:** Alta velocidade de acesso e baixa latência por estar "plugado" diretamente na máquina.
-* **Regra de Ouro:** O disco **deve ser criado exatamente na mesma Região e Zona de Disponibilidade (AZ)** da sua instância (ex: Virgínia, Zona B). Discos e instâncias em zonas diferentes não conseguem se conectar.
-
-
-
-#### Passo a Passo para Criação e Vínculo:
-
-1. Acesse a aba **Storage** e clique em **Create disk**.
-2. Altere a localização para a mesma da sua VM (`Virginia, Zone B`).
-3. Escolha o tamanho (ex: 8 GB por $0,80/mês) e defina um nome (ex: `data`). Clique em **Create disk**.
-4. **Anexando à Máquina:** Na tela do disco criado, vá em *Attach to an instance* e selecione a `Ubuntu-2`.
-5. Clique em **Attach**.
-
-> 📌 **Nota Técnica Importante:** Ao finalizar o vínculo, o Lightsail informará o caminho físico do disco (ex: `/dev/xvdf`). Guarde essa informação!
-
----
-
-### 🚀 Próximo Passo
-
-Diferente do Bucket (que já está pronto para arrastar arquivos), o **Disco adicional** acabou de ser plugado "fisicamente" no servidor virtual. Para que o sistema operacional Ubuntu consiga enxergá-lo e salvar dados nele, o próximo passo será se conectar via SSH para **formatar** (criar um sistema de arquivos) e **montar** (definir uma pasta de acesso) esse novo disco.
-
-
-Aqui está um resumo claro, estruturado e didático sobre o processo de preparação e montagem de um novo disco no Linux (Ubuntu) através do AWS Lightsail:
-
----
-
-## 🛠️ Aula: Formatando e Montando um Novo Disco no Linux
-
-Quando anexamos um novo disco a uma instância na nuvem, ele se comporta como um HD recém-comprado: o sistema sabe que ele está plugado fisicamente, mas ele ainda não tem um formato e nem uma pasta associada para que você possa salvar seus arquivos.
-
-Para torná-lo funcional, seguimos **4 etapas obrigatórias**:
-
----
-
-### Etapa 1: Reconhecimento Físico
-
-O primeiro passo é verificar se o sistema operacional reconheceu o hardware do disco anexado.
-
-1. Conecte-se à sua instância `Ubuntu-2` usando o cliente Web do Lightsail (clicando no retângulo laranja).
-2. Execute o comando para listar os dispositivos de armazenamento:
-```bash
-sudo sfdisk -l
-
-```
-
-
-* **O que observar:** Você verá o disco principal de boot (`/dev/xvda` com 20 GB) e o seu novo disco em branco (`/dev/xvdf` com 8 GB).
-
-
-3. Se você rodar o comando `df -h` (que mostra o espaço em uso nas partições utilizáveis), o seu novo disco **não** aparecerá ali ainda, pois ele não tem uma estrutura lógica.
-
----
-
-### Etapa 2: Particionamento
-
-Particionar significa dividir o espaço físico do disco em seções lógicas. Vamos criar uma única partição utilizando todo o espaço de 8 GB.
-
-1. Acesse o gerenciador de partições apontando para o seu novo disco:
-```bash
-sudo fdisk /dev/xvdf
-
-```
-
-
-2. Dentro do menu interativo do `fdisk`, digite os seguintes comandos em sequência:
-* **`n`**: Cria uma nova partição.
-* **`p`**: Define a partição como "Primária".
-* **`Enter`** (três vezes): Confirma o número padrão da partição (1), o setor inicial e o setor final (alocando 100% do tamanho do disco).
-* **`p`**: Opcional, apenas para imprimir na tela e conferir se a partição `/dev/xvdf1` foi listada.
-* **`w`**: **Crucial!** Salva (escreve) as alterações no disco e sai do utilitário.
-
-
-
----
-
-### Etapa 3: Formatação (Instalação do File System)
-
-Agora que a partição existe (`/dev/xvdf1`), precisamos escolher como os dados serão organizados nela. Vamos formatá-la usando o sistema de arquivos padrão do Linux, o **ext4**.
-
-1. Execute o comando de formatação na partição criada:
-```bash
-sudo mkfs.ext4 /dev/xvdf1
-
-```
-
-
-
----
-
-### Etapa 4: Montagem (Mount)
-
-Montar significa associar a partição do disco a uma pasta (diretório) do sistema. Tudo o que for jogado dentro dessa pasta passará a ser armazenado no novo disco de 8 GB.
-
-1. Vá para o diretório padrão de montagens do Linux:
-```bash
-cd /mnt
-
-```
-
-
-2. Crie uma pasta que servirá de "ponto de montagem" (vamos chamá-la de `data`):
-```bash
-sudo mkdir data
-
-```
-
-
-3. Realize a montagem do disco na pasta criada:
-```bash
-sudo mount /dev/xvdf1 /mnt/data/
-
-```
-
-
-
----
-
-### ✅ Validando o Resultado
-
-Para garantir que tudo deu certo, execute novamente o comando de espaço em disco:
-
-```bash
-df -h
-
-```
-
-Dessa vez, a última linha da tabela deverá exibir o sucesso da operação:
+Montagens manuais via comando `mount` duram apenas até o próximo reinício do servidor. Para tornar a montagem permanente, o analista deve registrar a partição no arquivo estruturado `/etc/fstab`.
 
 ```text
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/xvdf1      7.9G   36M  7.4G   1% /mnt/data
-
-```
-
-> ⚠️ **Atenção para o próximo passo:** Da forma como está, se a instância for reiniciada, o Linux "esquecerá" essa montagem. No próximo conteúdo, aprenderemos a automatizar esse processo editando o arquivo de inicialização do sistema (`/etc/fstab`).
-
-Aqui está um resumo claro, estruturado e didático sobre como automatizar a montagem de discos no Linux e ajustar permissões, fechando o ciclo de gerenciamento de infraestrutura baseada em máquinas virtuais (VMs):
-
----
-
-## 🛠️ Aula: Automatização de Discos, Permissões e Limpeza de Ambiente
-
-Se você apenas montar um disco manualmente (com o comando `mount`), o Linux "esquecerá" essa configuração na próxima vez que o servidor for reiniciado. Para evitar que sua aplicação perca o acesso aos dados após uma manutenção ou queda de energia, precisamos automatizar esse processo.
-
----
-
-### 1. Automatizando a Montagem com o arquivo `/etc/fstab`
-
-O Linux utiliza um arquivo de configuração crítico chamado **`fstab` (File System Table)** para saber quais discos devem ser montados automaticamente durante a inicialização do sistema.
-
-#### Passo a Passo:
-
-1. Abra o arquivo com privilégios de administrador:
-```bash
-sudo vi /etc/fstab
-
-```
-
-
-2. Adicione uma nova linha ao final do arquivo seguindo a sintaxe do Linux (utilize a tecla `Tab` para alinhar as colunas e manter a organização):
-```text
+# Sintaxe padrão para adição de linha ao final do arquivo /etc/fstab
 /dev/xvdf1    /mnt/data    ext4    defaults    0 1
 
 ```
 
+> **⚠️ CRÍTICO (Teste de Segurança):** Erros de digitação ou caminhos incorretos dentro do arquivo `fstab` causam o travamento completo do sistema operacional Linux durante a próxima inicialização, deixando a máquina inacessível. Antes de reiniciar a VM, teste a validação estrita forçando a leitura imediata do arquivo com o comando `sudo mount -a`. Se nenhum erro for exibido, o ambiente está seguro.
+> 
+> 
 
-* *Onde:* `/dev/xvdf1` é a partição do disco, `/mnt/data` é a pasta de destino, `ext4` é o sistema de arquivos, `defaults` são as opções padrão e `0 1` indica os parâmetros de backup e checagem do sistema.
+#### Gerenciamento de Permissões
+
+Pastas criadas sob privilégios administrativos (`sudo mkdir`) pertencem nativamente ao usuário administrador (`root`). Para liberar o espaço de armazenamento do novo disco para uso geral pelas aplicações e usuários do sistema, altera-se o proprietário de forma recursiva com o comando `sudo chown -R ubuntu:ubuntu /mnt/data`.
+
+### Resumo do Capítulo
+
+* [ ] Diferenciei os casos de uso de Buckets de objetos e Discos de bloco.
+
+
+* [ ] Realizei o particionamento, formatação ext4 e montagem de um disco no Linux.
+
+
+* [ ] Garanti a persistência da montagem editando com segurança o arquivo `/etc/fstab`.
 
 
 
-#### ⚠️ Regra de Ouro (O Teste de Segurança)
+### Exercícios de Fixação
 
-**Nunca reinicie o servidor logo após editar o `fstab`!** Se houver qualquer erro de digitação, a máquina virtual pode travar na inicialização e ficar inacessível. Para testar com segurança, use o comando:
+**1. Qual comando força o Linux a ler imediatamente as configurações de montagem do arquivo /etc/fstab para validar a ausência de erros de sintaxe antes de um reinício de sistema?**
+a) `sudo sfdisk -l`
+b) `df -h`
+c) `sudo mount -a`
+d) `chmod 400`
 
-```bash
-sudo mount -a
+**2. Qual restrição física obrigatória deve ser respeitada ao criar um novo Disco Adicional (Block Storage) para ser acoplado a uma máquina virtual no Lightsail?**
+a) Deve possuir um nome único global no mundo inteiro.
+b) Deve ser configurado com o protocolo HTTPS ativado de fábrica.
+c) Deve estar localizado exatamente na mesma Região e Zona de Disponibilidade da instância alvo.
+d) Deve possuir o IPv6 habilitado nativamente.
+
+---
+
+## Módulo 6: Modernização de Aplicações e Gerenciamento de Contêineres
+
+### Objetivos de Aprendizagem
+
+Ao final deste capítulo, você será capaz de:
+
+* Mapear o ciclo de vida de uma imagem Docker (do *Dockerfile* ao *Registry*).
+
+
+* Provisionar um serviço gerenciado de contêineres no AWS Lightsail.
+
+
+* Executar atualizações de código contínuas com capacidade instantânea de *Rollback*.
+
+
+
+### Teoria
+
+A modernização de infraestrutura foca na substituição de máquinas virtuais pesadas por **Contêineres**, que empacotam o código e todas as suas dependências em imagens leves e portáveis.
+
+O ciclo padrão baseia-se na leitura de um arquivo de receita chamado **Dockerfile** para a construção local da imagem (`docker build`), etiquetagem de versão (`docker tag`) e envio para um repositório central na nuvem (`docker push`), como o DockerHub.
+
+#### Serviços Gerenciados de Contêineres
+
+O AWS Lightsail oferece uma camada abstrata onde o analista realiza o deploy de imagens do DockerHub sem precisar gerenciar, atualizar ou configurar o sistema operacional subjacente da máquina virtual.
+
+O deploy exige a definição da capacidade computacional por nó (*Power*, como o plano Nano de $7/mês), a indicação do endereço da imagem (ex: `docker.io/usuario/imagem`) e a configuração de portas de comunicação (Porta `80` para tráfego HTTP) vinculadas ao ponto de acesso público (*Public Endpoint*).
+
+#### Controle de Versões e Rollback Imediato
+
+Sempre que uma nova atualização de código é enviada para o Lightsail, o console cria uma nova versão na tabela de históricos de deploys (**Deployment versions**). O Lightsail realiza a transição de tráfego de forma automatizada, mantendo o sistema anterior ativo até que o novo contêiner esteja operacional, eliminando janelas de indisponibilidade.
+
+```
+[ HISTÓRICO DE DEPLOYS ]
+  ├── Versão 2 ➔ Status: Inactive (Contém um Bug Crítico)
+  └── Versão 1 ➔ Status: Active 🔄 (Ativada via Rollback em segundos)
 
 ```
 
-Este comando força o Linux a ler o arquivo `fstab` imediatamente. Se ele rodar sem exibir mensagens de erro, sua configuração está perfeita e você pode verificar o sucesso digitando `df -h`.
+Caso a nova versão apresente falhas críticas em produção, o operador de infraestrutura possui o poder de **Rollback**: basta selecionar a versão estável antiga guardada de forma inativa no histórico, clicar em realocar e ativá-la novamente. O Lightsail reverte o ambiente para o estado funcional estável anterior em questão de segundos, mitigando prejuízos operacionais.
+
+### Resumo do Capítulo
+
+* [ ] Compreendi a esteira de publicação de imagens Docker.
+
+
+* [ ] Provisionei um serviço de contêiner gerenciado no Lightsail abrindo portas e endpoints.
+
+
+* [ ] Vivenciei o controle de deploys, atualizações e o acionamento de mecanismos de *Rollback*.
+
+
+
+### Exercícios de Fixação
+
+**1. Qual o recurso do serviço de contêineres do AWS Lightsail permite reverter o site em produção para uma versão estável anterior em segundos caso a nova atualização apresente um bug crítico?**
+a) Snapshot Manual
+b) Rollback (via Deployment versions)
+c) Fixação de IP Estático
+d) Formatação ext4 do fstab
+
+**2. Onde deve estar hospedada a Imagem do contêiner para que o console do AWS Lightsail consiga puxá-la e realizar o deploy simplificado?**
+a) Dentro de um arquivo fstab local no computador do usuário.
+b) Em um diretório `/mnt/data` formatado.
+c) Em um Registro público ou privado na nuvem (como o DockerHub).
+d) Vinculada obrigatoriamente a um par de chaves `.pem`.
 
 ---
 
-### 2. Ajustando Permissões de Acesso
+## Considerações Finais e FinOps
 
-Por padrão, quando um novo disco é montado no diretório `/mnt`, o dono absoluto dele é o usuário administrador do sistema (`root`). Se o seu usuário padrão (`ubuntu`) tentar criar um arquivo lá dentro, ele receberá o erro **"Permission denied"**.
+O domínio técnico de ferramentas de computação em nuvem perde o valor estratégico caso não esteja intimamente associado a uma rígida **cultura de gerenciamento de custos (FinOps)**. A nuvem oferece elasticidade e facilidade de provisionamento a um clique de distância, mas cobra pela ociosidade e pela desorganização de recursos.
 
-Para corrigir isso e permitir que suas aplicações salvem dados no novo disco, precisamos alterar o proprietário (*owner*) da pasta:
+Ao longo deste manual, você desenvolveu habilidades práticas cruciais: provisionou instâncias automatizadas, realizou o isolamento de falhas distribuindo VMs em diferentes Zonas de Disponibilidade, dominou a formatação avançada de blocos de armazenamento em Linux e implementou deploys ágeis de microsserviços com contêineres.
 
-1. Vá até o diretório correspondente: `cd /mnt`
-2. Altere o dono da pasta de forma recursiva (`-R`, aplicando a subpastas e arquivos futuros) para o usuário e grupo `ubuntu`:
-```bash
-sudo chown -R ubuntu:ubuntu data
-
-```
-
-
-
-Agora, o acesso está totalmente liberado para o uso diário.
-
----
-
-### 🛑 Faxina Final e Desmobilização de Recursos
-
-Antes de avançar para o próximo módulo do curso (Contêineres), é fundamental apagar toda a infraestrutura de VMs para **evitar cobranças indesejadas** no cartão de crédito.
-
-Siga esta ordem lógica para conseguir excluir tudo na AWS Lightsail:
-
-1. **Bucket:** Na aba *Storage*, clique nos três pontos do bucket ➡️ *Delete* ➡️ marque a caixa de aviso e clique em *Force delete*.
-2. **Disco Adicional:** Você não consegue deletar um disco que está sendo usado.
-* Vá em *Manage* no disco `data`.
-* Clique em **Detach** (Desanexar). O sistema pedirá para desligar a instância (`Stop instance`).
-* Após a máquina parar, confirme em **Yes, detach**.
-* Retorne à aba *Storage* e agora sim, delete o disco `data`.
-
-
-3. **Máquina Virtual (VM):** Na aba *Instances*, clique nos três pontos da `Ubuntu-2` e selecione *Delete*.
-4. **IP Estático:** Na aba *Networking*, exclua o `Staticip-ubuntu-2` (lembre-se: IP estático desalocado gera custos!).
-
-Com a conta limpa e zerada, a infraestrutura está pronta para a próxima etapa: **Contêineres gerenciados**!
-
-
----
-
-Aqui está um resumo claro, estruturado e didático sobre o funcionamento e o provisionamento de contêineres no AWS Lightsail:
-
----
-
-## 📦 Aula: Introdução a Contêineres e Deploy no AWS Lightsail
-
-Muitas aplicações modernas estão migrando de Máquinas Virtuais (VMs) para **Contêineres** devido à sua leveza, agilidade e facilidade de replicação. Enquanto a VM mais barata do Lightsail custa $3,50/mês, o plano inicial de contêineres custa **$7,00/mês por node**, mas permite rodar múltiplos contêineres com gerenciamento automático e escalabilidade rápida.
-
----
-
-### 1. Entendendo a Origem: O Dockerfile e a Imagem
-
-Para rodar um contêiner, precisamos de uma **Imagem** (um pacote com tudo o que a aplicação precisa para funcionar). Essa imagem é gerada a partir de um arquivo de receita chamado **Dockerfile**.
-
-#### Exemplo Prático de Infraestrutura (Apache):
-
-O projeto utilizado nesta aula cria um servidor web Apache sobre o Ubuntu:
-
-* **Base:** Parte do `ubuntu:18.04`.
-* **Instalação:** Atualiza o sistema e instala o servidor `apache2`.
-* **Cópia de Arquivos:** Move o código do site (`src/index.html`) para a pasta pública do Apache (`/var/www/html/`).
-* **Porta:** Expõe a porta `80` (HTTP).
-* **Execução:** Define que o Apache deve iniciar automaticamente e rodar em primeiro plano.
-
-#### Fluxo de Publicação da Imagem:
-
-Se você quiser customizar o site, o fluxo padrão do Docker é:
-
-1. **Baixar o código:** `git clone <repositorio>`
-2. **Construir a imagem local:** `docker build .` (Gera um ID, ex: `14f35de79667`)
-3. **Etiquetar/Nomear:** `docker tag 14f35de79667 rmerces/apache-labs`
-4. **Enviar para a nuvem (Registry):** `docker push rmerces/apache-labs` (Disponibiliza a imagem publicamente no DockerHub).
-
----
-
-### 2. Provisionando o Serviço de Contêiner no Lightsail
-
-Com a imagem pronta e hospedada no DockerHub, o deploy no Lightsail é feito de forma visual e simplificada:
-
-1. Na tela inicial do Lightsail, acesse a aba **Containers** e clique em **Create container service**.
-2. **Capacidade (Power):** Selecione o plano **Nano ($7/mês)** e defina a quantidade de nós como `1`.
-3. **Configuração de Deploy:** Clique em *Set up deployment* e marque a opção **Specify a custom deployment**.
-4. **Identificação da Imagem:**
-* **Container name:** `apache-labs`
-* **Image:** `docker.io/rmerces/apache-labs` (Endereço oficial do DockerHub).
-
-
-
----
-
-### 3. Liberando o Acesso (Portas e Endpoint)
-
-Para que as pessoas consigam acessar o site que está dentro do contêiner, precisamos abrir as portas de comunicação:
-
-* **Open Ports (Portas Abertas):** Na seção *Configuration*, clique em **Add open ports** e defina:
-* **Port:** `80`
-* **Protocol:** `HTTP`
-
-
-* **Public Endpoint (Ponto de Acesso Público):** No campo correspondente, selecione o contêiner `apache-labs`. Isso diz à AWS que quem digitar o endereço web do serviço deve ser direcionado diretamente para a porta 80 deste contêiner.
-* **Finalização:** No campo *Identify your service*, digite `apache-labs` e clique em **Create container service**.
-
----
-
-### 🎯 O que esperar a seguir?
-
-O Lightsail iniciará o processo de provisionamento (status *Pending* ou *Deploying*). Após alguns minutos, a AWS gerará uma URL pública e segura para o seu serviço. Ao acessá-la, você verá a página HTML customizada com o título **"Rmerces LABS"** e a mensagem **"TESTE SITE"**, confirmando o sucesso do deploy do contêiner.
-
-
----
-
-Aqui está um resumo claro, estruturado e didático sobre o gerenciamento de versões, deploy contínuo e *rollback* de contêineres no AWS Lightsail:
-
----
-
-## 📦 Aula: Deploy Contínuo, Controle de Versões e Rollback no Lightsail
-
-Uma das maiores vantagens de utilizar o serviço de contêineres do AWS Lightsail é o **gerenciamento automatizado de versões**. Quando atualizamos o código da nossa aplicação, o Lightsail cuida da transição sem tirar o sistema do ar e mantém um histórico que permite reverter erros em segundos.
-
----
-
-### 1. Verificando o Primeiro Deploy
-
-Assim que o Lightsail conclui o processamento inicial, o status da aplicação muda para **"Active"** no histórico de deploys.
-
-* No topo da página, a AWS disponibiliza um **Public Domain** (um link público seguro).
-* Ao clicar nesse link, a página abrirá exibindo o conteúdo original da nossa imagem Docker: **"TESTE SITE"**.
-
----
-
-### 2. Atualizando a Aplicação (Nova Versão)
-
-Imagine que o cliente pediu uma alteração no código do site. O fluxo para atualizar o contêiner segue estes passos no terminal e na nuvem:
-
-#### Passo 1: Atualizar o código localmente
-
-1. Entre na pasta do código: `cd src`
-2. Abra o arquivo HTML (`vi index.html`) e altere o texto de `<h1>TESTE SITE</h1>` para `<h1>TESTE SITE 2</h1>`. Salve e saia.
-
-#### Passo 2: Build e Push para o Docker Hub
-
-Volte para a raiz do projeto e envie a nova versão para o seu repositório:
-
-```bash
-cd ..
-docker build .
-docker tag [NOVO_ID_DA_IMAGEM] rmerces/apache-labs
-docker push rmerces/apache-labs
-
-```
-
-#### Passo 3: Atualizar no Lightsail (Redeploy)
-
-1. No painel do Lightsail, vá até o tópico **Deployment versions**.
-2. Clique nos três pontos ao lado da versão ativa e selecione **Modify and redeploy** (e confirme em *Yes, continue*).
-3. Como o endereço da imagem no Docker Hub continua o mesmo, você não precisa alterar nenhum campo. Apenas role até o final e clique em **Save and deploy**.
-
----
-
-### 3. Histórico e o Poder do *Rollback*
-
-Após o novo deploy, a tabela de versões será atualizada automaticamente:
-
-* **Versão 2:** Status **Active** (Versão atual com o texto "TESTE SITE 2").
-* **Versão 1:** Status **Inactive** (Versão antiga guardada no histórico).
-
-Se você acessar o mesmo link público de antes e atualizar a página, verá o texto atualizado para **"TESTE SITE 2"**.
-
-> 🔄 **O que é Rollback?** Se a nova versão (Versão 2) apresentar algum bug crítico em produção, você não precisa refazer o código correndo. Basta clicar nos três pontos da **Versão 1 (Inativa)**, selecionar *Modify and redeploy* e ativá-la novamente. O Lightsail reverte o site para o estado anterior de forma imediata.
-
----
-
-### 🛑 Faxina Final do Curso
-
-Para garantir que você não receba cobranças indesejadas no seu cartão de crédito (já que o serviço de contêineres possui custo fixo de $7/mês), certifique-se de apagar o ambiente ao concluir os estudos:
-
-1. Vá para a tela inicial da Lightsail e clique na aba **Containers**.
-2. Clique nos três pontos no canto superior direito do serviço `apache-labs` e selecione **Delete**.
-3. Confirme clicando em **Yes, delete**.
-
-> 🔍 **Dica de Ouro:** Navegue por todas as abas da tela inicial (*Instances, Databases, Networking, Storage*) para garantir que nenhum recurso criado ao longo das aulas ficou esquecido para trás.
-
-Parabéns por concluir essa jornada! Esse curso cobriu os principais pilares de infraestrutura e serviços em nuvem usando a AWS Lightsail.
-
-Aqui está um grande resumo consolidado de tudo o que você aprendeu e dominou ao longo dessas aulas, servindo como o seu mapa mental definitivo dessa tecnologia:
-
----
-
-## 🗺️ Mapa de Aprendizado: O que você dominou neste curso
-
-```
-                                  [ AWS LIGHTSAIL ]
-                                          |
-    +-------------------+-----------------+-----------------+-------------------+
-    |                   |                 |                 |                   |
-[ Clicar e Rodar ]    [ Computação / VM ] [ Armazenamento ] [ Alta Disponibil.] [ Contêineres ]
-    |                   |                 |                 |                   |
- • WordPress         • Ubuntu (Instância) • Buckets (S3)    • Snapshots         • Nós (Nodes) Nano
-                     • IP Estático        • Discos (/dev/xvdf)• Load Balancer     • Controle Versões
-                     • IPv4 Firewall      • Montagem (fstab)• Zonas (AZ A/B)    • Rollback Rápido
-
-```
-
----
-
-### 🚀 1. Facilidade de Provisionamento (Click-to-Launch)
-
-Você viu na prática como o Lightsail elimina a complexidade da nuvem tradicional ao permitir o deploy de aplicações prontas, como o **WordPress**, em questão de poucos cliques, configurando servidor web e banco de dados automaticamente.
-
-### 💻 2. Computação e Gerenciamento de Instâncias (VMs)
-
-Você aprendeu a criar, gerenciar e conectar-se a uma máquina virtual Linux (**Ubuntu**). Além disso, dominou conceitos cruciais de rede e segurança:
-
-* **IPs Estáticos:** Para evitar a perda de comunicação com o servidor quando ele é reiniciado.
-* **Firewall IPv4:** Liberando e controlando portas essenciais como a **22 (SSH)** e a **80 (HTTP)**.
-
-### 💾 3. Armazenamento na Nuvem (Storage)
-
-Você diferenciou e aprendeu a configurar as duas principais formas de guardar dados:
-
-* **Buckets:** Armazenamento de objetos, ideal para arquivos de mídia e backups, focado em baixo custo e alta durabilidade global.
-* **Discos Adicionais (Block Storage):** Perfeitos para expandir o espaço interno da VM. Você realizou tarefas reais de um Administrador Linux: *reconhecer, particionar (`fdisk`), formatar (`ext4`), montar (`mount`)* e automatizar a inicialização editando com segurança o arquivo crítico `/etc/fstab`.
-
-### ⚖️ 4. Alta Disponibilidade e Resiliência
-
-Você elevou o nível da infraestrutura ao criar arquiteturas preparadas para falhas:
-
-* **Snapshots:** Utilizados como cópias de segurança e como moldes para clonar servidores idênticos em minutos.
-* **Zonas de Disponibilidade (AZs):** Distribuindo máquinas entre a *Zona A* e *Zona B* para proteção contra desastres físicos em data centers.
-* **Load Balancer (Balanceador de Carga):** O cérebro que distribui o tráfego de usuários e monitora a saúde dos servidores através de *Health Checks* customizados (utilizando o arquivo `server.txt`).
-
-### 📦 5. Modernização com Contêineres
-
-Por fim, você entrou no mundo DevOps ao provisionar um serviço gerenciado de contêineres:
-
-* Entendeu o fluxo de uma imagem Docker (do *Dockerfile* ao *Docker Hub*).
-* Fez o deploy de uma aplicação Apache na AWS sem precisar gerenciar o sistema operacional por baixo.
-* Aprendeu como o Lightsail lida com o **controle de versões**, permitindo atualizações de código contínuas e o recurso de **Rollback** (reverter para uma versão anterior estável em segundos se algo der errado).
-
----
-
-### 🛡️ Sua principal soft skill desenvolvida: FinOps (Cultura de Custo)
-
-Ao longo de cada módulo, você desenvolveu uma mentalidade essencial para quem trabalha com nuvem: **a consciência de custos**. Você aprendeu a revisar os planos, entender as taxas de recursos desalocados (como IPs estáticos órfãos) e adquiriu a excelente prática de fazer a "faxina técnica" ao final de cada experimento.
-
-O conhecimento adquirido aqui abre as portas para você desenhar arquiteturas de sistemas ainda mais complexas e eficientes. Muito sucesso nos seus próximos passos e bons estudos! Até o próximo curso! 🚀
+A competência essencial de um arquiteto letrado em nuvem consiste em aplicar a **"faxina técnica"** sistemática ao final de cada projeto ou fase de testes: deletar balanceadores ociosos, desanexar e remover discos de testes, apagar snapshots antigos e, acima de tudo, caçar e excluir IPs estáticos órfãos que geram cobranças silenciosas no cartão de crédito corporativo. Continue utilizando a infraestrutura como código e rascunhos ágeis, mantendo sempre o filtro crítico sobre a segurança, a alta disponibilidade e a eficiência orçamentária de sua arquitetura. Muito sucesso nos seus próximos deploys! 🚀
