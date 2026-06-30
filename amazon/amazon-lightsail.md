@@ -472,3 +472,207 @@ O **Disco** (Block Storage) simula um HD ou SSD físico que você compra para in
 ### 🚀 Próximo Passo
 
 Diferente do Bucket (que já está pronto para arrastar arquivos), o **Disco adicional** acabou de ser plugado "fisicamente" no servidor virtual. Para que o sistema operacional Ubuntu consiga enxergá-lo e salvar dados nele, o próximo passo será se conectar via SSH para **formatar** (criar um sistema de arquivos) e **montar** (definir uma pasta de acesso) esse novo disco.
+
+
+Aqui está um resumo claro, estruturado e didático sobre o processo de preparação e montagem de um novo disco no Linux (Ubuntu) através do AWS Lightsail:
+
+---
+
+## 🛠️ Aula: Formatando e Montando um Novo Disco no Linux
+
+Quando anexamos um novo disco a uma instância na nuvem, ele se comporta como um HD recém-comprado: o sistema sabe que ele está plugado fisicamente, mas ele ainda não tem um formato e nem uma pasta associada para que você possa salvar seus arquivos.
+
+Para torná-lo funcional, seguimos **4 etapas obrigatórias**:
+
+---
+
+### Etapa 1: Reconhecimento Físico
+
+O primeiro passo é verificar se o sistema operacional reconheceu o hardware do disco anexado.
+
+1. Conecte-se à sua instância `Ubuntu-2` usando o cliente Web do Lightsail (clicando no retângulo laranja).
+2. Execute o comando para listar os dispositivos de armazenamento:
+```bash
+sudo sfdisk -l
+
+```
+
+
+* **O que observar:** Você verá o disco principal de boot (`/dev/xvda` com 20 GB) e o seu novo disco em branco (`/dev/xvdf` com 8 GB).
+
+
+3. Se você rodar o comando `df -h` (que mostra o espaço em uso nas partições utilizáveis), o seu novo disco **não** aparecerá ali ainda, pois ele não tem uma estrutura lógica.
+
+---
+
+### Etapa 2: Particionamento
+
+Particionar significa dividir o espaço físico do disco em seções lógicas. Vamos criar uma única partição utilizando todo o espaço de 8 GB.
+
+1. Acesse o gerenciador de partições apontando para o seu novo disco:
+```bash
+sudo fdisk /dev/xvdf
+
+```
+
+
+2. Dentro do menu interativo do `fdisk`, digite os seguintes comandos em sequência:
+* **`n`**: Cria uma nova partição.
+* **`p`**: Define a partição como "Primária".
+* **`Enter`** (três vezes): Confirma o número padrão da partição (1), o setor inicial e o setor final (alocando 100% do tamanho do disco).
+* **`p`**: Opcional, apenas para imprimir na tela e conferir se a partição `/dev/xvdf1` foi listada.
+* **`w`**: **Crucial!** Salva (escreve) as alterações no disco e sai do utilitário.
+
+
+
+---
+
+### Etapa 3: Formatação (Instalação do File System)
+
+Agora que a partição existe (`/dev/xvdf1`), precisamos escolher como os dados serão organizados nela. Vamos formatá-la usando o sistema de arquivos padrão do Linux, o **ext4**.
+
+1. Execute o comando de formatação na partição criada:
+```bash
+sudo mkfs.ext4 /dev/xvdf1
+
+```
+
+
+
+---
+
+### Etapa 4: Montagem (Mount)
+
+Montar significa associar a partição do disco a uma pasta (diretório) do sistema. Tudo o que for jogado dentro dessa pasta passará a ser armazenado no novo disco de 8 GB.
+
+1. Vá para o diretório padrão de montagens do Linux:
+```bash
+cd /mnt
+
+```
+
+
+2. Crie uma pasta que servirá de "ponto de montagem" (vamos chamá-la de `data`):
+```bash
+sudo mkdir data
+
+```
+
+
+3. Realize a montagem do disco na pasta criada:
+```bash
+sudo mount /dev/xvdf1 /mnt/data/
+
+```
+
+
+
+---
+
+### ✅ Validando o Resultado
+
+Para garantir que tudo deu certo, execute novamente o comando de espaço em disco:
+
+```bash
+df -h
+
+```
+
+Dessa vez, a última linha da tabela deverá exibir o sucesso da operação:
+
+```text
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/xvdf1      7.9G   36M  7.4G   1% /mnt/data
+
+```
+
+> ⚠️ **Atenção para o próximo passo:** Da forma como está, se a instância for reiniciada, o Linux "esquecerá" essa montagem. No próximo conteúdo, aprenderemos a automatizar esse processo editando o arquivo de inicialização do sistema (`/etc/fstab`).
+
+Aqui está um resumo claro, estruturado e didático sobre como automatizar a montagem de discos no Linux e ajustar permissões, fechando o ciclo de gerenciamento de infraestrutura baseada em máquinas virtuais (VMs):
+
+---
+
+## 🛠️ Aula: Automatização de Discos, Permissões e Limpeza de Ambiente
+
+Se você apenas montar um disco manualmente (com o comando `mount`), o Linux "esquecerá" essa configuração na próxima vez que o servidor for reiniciado. Para evitar que sua aplicação perca o acesso aos dados após uma manutenção ou queda de energia, precisamos automatizar esse processo.
+
+---
+
+### 1. Automatizando a Montagem com o arquivo `/etc/fstab`
+
+O Linux utiliza um arquivo de configuração crítico chamado **`fstab` (File System Table)** para saber quais discos devem ser montados automaticamente durante a inicialização do sistema.
+
+#### Passo a Passo:
+
+1. Abra o arquivo com privilégios de administrador:
+```bash
+sudo vi /etc/fstab
+
+```
+
+
+2. Adicione uma nova linha ao final do arquivo seguindo a sintaxe do Linux (utilize a tecla `Tab` para alinhar as colunas e manter a organização):
+```text
+/dev/xvdf1    /mnt/data    ext4    defaults    0 1
+
+```
+
+
+* *Onde:* `/dev/xvdf1` é a partição do disco, `/mnt/data` é a pasta de destino, `ext4` é o sistema de arquivos, `defaults` são as opções padrão e `0 1` indica os parâmetros de backup e checagem do sistema.
+
+
+
+#### ⚠️ Regra de Ouro (O Teste de Segurança)
+
+**Nunca reinicie o servidor logo após editar o `fstab`!** Se houver qualquer erro de digitação, a máquina virtual pode travar na inicialização e ficar inacessível. Para testar com segurança, use o comando:
+
+```bash
+sudo mount -a
+
+```
+
+Este comando força o Linux a ler o arquivo `fstab` imediatamente. Se ele rodar sem exibir mensagens de erro, sua configuração está perfeita e você pode verificar o sucesso digitando `df -h`.
+
+---
+
+### 2. Ajustando Permissões de Acesso
+
+Por padrão, quando um novo disco é montado no diretório `/mnt`, o dono absoluto dele é o usuário administrador do sistema (`root`). Se o seu usuário padrão (`ubuntu`) tentar criar um arquivo lá dentro, ele receberá o erro **"Permission denied"**.
+
+Para corrigir isso e permitir que suas aplicações salvem dados no novo disco, precisamos alterar o proprietário (*owner*) da pasta:
+
+1. Vá até o diretório correspondente: `cd /mnt`
+2. Altere o dono da pasta de forma recursiva (`-R`, aplicando a subpastas e arquivos futuros) para o usuário e grupo `ubuntu`:
+```bash
+sudo chown -R ubuntu:ubuntu data
+
+```
+
+
+
+Agora, o acesso está totalmente liberado para o uso diário.
+
+---
+
+### 🛑 Faxina Final e Desmobilização de Recursos
+
+Antes de avançar para o próximo módulo do curso (Contêineres), é fundamental apagar toda a infraestrutura de VMs para **evitar cobranças indesejadas** no cartão de crédito.
+
+Siga esta ordem lógica para conseguir excluir tudo na AWS Lightsail:
+
+1. **Bucket:** Na aba *Storage*, clique nos três pontos do bucket ➡️ *Delete* ➡️ marque a caixa de aviso e clique em *Force delete*.
+2. **Disco Adicional:** Você não consegue deletar um disco que está sendo usado.
+* Vá em *Manage* no disco `data`.
+* Clique em **Detach** (Desanexar). O sistema pedirá para desligar a instância (`Stop instance`).
+* Após a máquina parar, confirme em **Yes, detach**.
+* Retorne à aba *Storage* e agora sim, delete o disco `data`.
+
+
+3. **Máquina Virtual (VM):** Na aba *Instances*, clique nos três pontos da `Ubuntu-2` e selecione *Delete*.
+4. **IP Estático:** Na aba *Networking*, exclua o `Staticip-ubuntu-2` (lembre-se: IP estático desalocado gera custos!).
+
+Com a conta limpa e zerada, a infraestrutura está pronta para a próxima etapa: **Contêineres gerenciados**!
+
+
+---
+
