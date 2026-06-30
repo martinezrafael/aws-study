@@ -238,3 +238,177 @@ Utilizando o molde criado no passo 1, vamos provisionar a segunda VM em uma zona
 Com as duas máquinas idênticas (`Ubuntu-1` na Zona A e `Ubuntu-2` na Zona B) rodando em paralelo, o próximo passo será configurar o **Load Balancer (Balanceador de Carga)** na aba *Networking*. Ele ficará à frente dessas instâncias, recebendo as requisições dos usuários e distribuindo o tráfego entre elas de forma inteligente.
 
 
+---
+
+Aqui está um resumo claro, estruturado e didático do conteúdo para guiar seus estudos:
+
+---
+
+## ☁️ Aula: Padronização de Instâncias e Identificadores para o Load Balancer
+
+O objetivo desta etapa é garantir que as duas instâncias (`Ubuntu-1` e `Ubuntu-2`) estejam **idênticas em configuração**, possuam **IPs que não mudam** e tenham **identificadores exclusivos** para sabermos qual servidor está respondendo quando instalarmos o balanceador de carga.
+
+---
+
+### 1. Configuração de Rede: IPs Estáticos e IPv6
+
+Quando reiniciamos ou iniciamos uma instância que estava parada (como a `Ubuntu-1`), o provedor de nuvem costuma alterar o seu endereço IP público. Para evitar que nossa aplicação perca a comunicação, precisamos fixar esses IPs.
+
+* **Alocando IPs Estáticos:**
+1. No painel da Lightsail, inicie a `Ubuntu-1` clicando em **Start**.
+2. Para cada máquina, vá em **Manage** ➡️ aba **Networking** ➡️ **Create static IP**.
+3. Nomeie os IPs de forma organizada (ex: `Staticip-ubuntu1` para a primeira e `Staticip-ubuntu2` para a segunda).
+
+
+* **Desabilitando o IPv6 na Ubuntu-2:**
+* Como a `Ubuntu-2` veio com o IPv6 ativado por padrão (e a `Ubuntu-1` não), precisamos desativá-lo para que ambas as máquinas fiquem perfeitamente iguais.
+* Acesse a aba **Networking** da `Ubuntu-2` e, em *IPv6 networking*, desabilite a opção.
+
+
+
+---
+
+### 2. Criando Identificadores nos Servidores (server.txt)
+
+Para testar o funcionamento do futuro *Load Balancer*, precisamos de uma forma de diferenciar qual máquina está respondendo a cada requisição. Criaremos um arquivo de texto simples dentro do diretório do servidor web (Nginx).
+
+#### No Servidor 1 (`Ubuntu-1`):
+
+1. Conecte-se via terminal usando a chave SSH:
+```bash
+ssh -i lightsail-rmerces.pem ubuntu@IP_DA_UBUNTU_1
+
+```
+
+
+2. Navegue até a pasta pública do Nginx:
+```bash
+cd /var/www/html/
+
+```
+
+
+3. Crie o arquivo identificador:
+```bash
+sudo vi server.txt
+
+```
+
+
+* *Escreva dentro do arquivo:* `SERVIDOR UBUNTU - 1` e salve.
+
+
+
+#### No Servidor 2 (`Ubuntu-2`):
+
+1. Saia do primeiro servidor (`exit`) e conecte-se no segundo utilizando o IP da `Ubuntu-2`.
+2. Repita o processo no diretório `/var/www/html/` criando o arquivo `server.txt`.
+* *Escreva dentro do arquivo:* `SERVIDOR UBUNTU - 2` e salve.
+
+
+
+---
+
+### 3. Solução de Problemas Comuns (Troubleshooting)
+
+Se ao tentar acessar no navegador o endereço `http://IP_DA_MAQUINA/server.txt` a página não carregar, revise os três pontos abaixo:
+
+#### A. O serviço Nginx está ativo?
+
+Após reiniciar uma máquina, o serviço pode não subir sozinho. Para ligá-lo e garantir que ele **inicie automaticamente** em futuros reboots, use:
+
+```bash
+# Garante que o Nginx inicie junto com o sistema
+sudo systemctl enable nginx
+
+# Inicia o serviço imediatamente
+sudo service nginx start
+
+```
+
+#### B. A porta 80 está liberada no Firewall?
+
+O Nginx responde na porta HTTP padrão (80). Verifique se a regra existe na aba **Networking** ➡️ **IPv4 Firewall**. A tabela deve conter:
+
+* **HTTP | TCP | 80 | Any IPv4 address**
+* *Se não existir, clique em **Add rule** para adicioná-la.*
+
+---
+
+### 🎯 Resultado Esperado
+
+Ao final desta configuração, você terá duas instâncias isoladas e prontas. Ao testar no navegador, os acessos diretos devem retornar os identificadores corretos:
+
+* `http://IP_ESTATICO_1/server.txt` ➡️ Exibe: **SERVIDOR UBUNTU - 1**
+* `http://IP_ESTATICO_2/server.txt` ➡️ Exibe: **SERVIDOR UBUNTU - 2**
+
+Com o ambiente nivelado e testado, a infraestrutura está pronta para receber o **Load Balancer**, que distribuirá as requisições entre esses dois servidores automaticamente.
+
+
+
+
+---
+
+
+Aqui está um resumo claro, estruturado e didático sobre a criação, configuração e testes de um Balanceador de Carga:
+
+---
+
+## ☁️ Aula: Configurando um Load Balancer e Testando Alta Disponibilidade
+
+O **Load Balancer (Balanceador de Carga)** atua como um intermediário inteligente (ou um "guarda de trânsito") que fica à frente dos seus servidores. Ele recebe todas as requisições dos usuários e as distribui entre as instâncias disponíveis, garantindo que o ambiente suporte mais acessos e continue funcionando mesmo se uma máquina falhar.
+
+---
+
+### 1. Criando o Load Balancer na AWS Lightsail
+
+1. Na tela inicial da Lightsail, acesse a aba **Networking** e clique em **Create load balancer**.
+2. **Configuração Inicial:** Mantenha a opção **HTTP** (a porta padrão 80). Para HTTPS, seria necessário configurar um certificado de segurança.
+3. **Identificação:** Mantenha o nome padrão `LoadBalancer-1`.
+4. **Custo:** Fique atento! O Load Balancer **não faz parte do nível gratuito (free tier)** e possui um custo estimado de $18/mês. Por isso, a recomendação é excluí-lo logo após o término dos testes.
+5. Clique em **Create load balancer**.
+
+---
+
+### 2. Vinculando Instâncias e Configurando o *Health Check*
+
+Após criar o balanceador, você precisa apontar quais máquinas responderão por ele e como ele saberá se elas estão funcionando.
+
+* **Target Instances (Instâncias Alvo):** Na página do balanceador, selecione a instância `Ubuntu-1` e clique em **Attach**. Em seguida, clique em **Attach another** e anexe a `Ubuntu-2`.
+* **Health Check (Verificação de Integridade):** É o teste que o balanceador faz constantemente para saber se o servidor está "saudável". Se uma máquina parar de responder, o balanceador para de enviar tráfego para ela.
+* **Customização:** Clique em **Customize health checking** e mude o arquivo de teste para o `server.txt` (criado na aula anterior).
+* **Como funciona:** O Load Balancer tentará acessar `http://IP/server.txt`. Se a máquina responder com sucesso, ela continua na fila de distribuição.
+
+
+
+---
+
+### 3. Testando a Alta Disponibilidade na Prática
+
+No topo da página do Lightsail, você encontrará o **DNS name** (um endereço web longo gerado para o seu balanceador).
+
+1. Copie esse endereço DNS e abra-o em uma nova aba do navegador.
+2. Adicione `/server.txt` ao final da URL.
+3. **O Teste de Carga:** Ao atualizar (dar F5) a página várias vezes, você verá o texto alternar entre **"SERVIDOR UBUNTU - 1"** e **"SERVIDOR UBUNTU - 2"**. Isso prova que o balanceador está dividindo o trabalho entre as duas máquinas.
+4. **Simulando uma Falha:** Vá até a tela inicial da Lightsail e dê um **Stop** na instância `Ubuntu-2`.
+5. **O Resultado:** Ao voltar na aba do balanceador e atualizar a página, o IPv4 do Firewall ou o Health Check detectará a queda da `Ubuntu-2`. A partir daí, 100% dos acessos serão direcionados automaticamente para a `Ubuntu-1` (**"SERVIDOR UBUNTU - 1"**), mantendo o site no ar sem nenhuma interrupção para o usuário.
+
+---
+
+### 4. Monitoramento e Alarmes
+
+Na aba **Metrics** do seu balanceador, você pode usar a seção **Alarms** para se prevenir:
+
+* É possível configurar um alarme para te notificar (por e-mail ou SMS) caso o número de instâncias saudáveis mude.
+* *Exemplo prático:* Criar um alerta se o ambiente tiver "menos de 2 instâncias operando por 5 minutos". Em ambientes reais, isso avisa a equipe de TI antes que o serviço caia por completo.
+
+---
+
+### 🛑 Limpeza de Ambiente (Evitando Cobranças)
+
+Como o Load Balancer e IPs estáticos desalocados geram custos na nuvem, realize os seguintes passos de exclusão ao finalizar o aprendizado:
+
+1. **Load Balancer:** Na página dele, clique nos três pontos no topo e selecione **Delete**.
+2. **Instância Ubuntu-1:** Na tela inicial, clique nos três pontos e selecione **Delete** (Manteremos apenas a `Ubuntu-2` parada para as próximas aulas).
+3. **Snapshots:** Na aba *Snapshots*, apague o `nginx-snapshot`.
+4. **IP Estático:** Na aba *Networking*, exclua o `Staticip-ubuntu1`. **Atenção:** Manter um IP estático sem nenhuma instância vinculada a ele gera cobranças na AWS!
