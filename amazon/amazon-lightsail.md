@@ -676,3 +676,209 @@ Com a conta limpa e zerada, a infraestrutura está pronta para a próxima etapa:
 
 ---
 
+Aqui está um resumo claro, estruturado e didático sobre o funcionamento e o provisionamento de contêineres no AWS Lightsail:
+
+---
+
+## 📦 Aula: Introdução a Contêineres e Deploy no AWS Lightsail
+
+Muitas aplicações modernas estão migrando de Máquinas Virtuais (VMs) para **Contêineres** devido à sua leveza, agilidade e facilidade de replicação. Enquanto a VM mais barata do Lightsail custa $3,50/mês, o plano inicial de contêineres custa **$7,00/mês por node**, mas permite rodar múltiplos contêineres com gerenciamento automático e escalabilidade rápida.
+
+---
+
+### 1. Entendendo a Origem: O Dockerfile e a Imagem
+
+Para rodar um contêiner, precisamos de uma **Imagem** (um pacote com tudo o que a aplicação precisa para funcionar). Essa imagem é gerada a partir de um arquivo de receita chamado **Dockerfile**.
+
+#### Exemplo Prático de Infraestrutura (Apache):
+
+O projeto utilizado nesta aula cria um servidor web Apache sobre o Ubuntu:
+
+* **Base:** Parte do `ubuntu:18.04`.
+* **Instalação:** Atualiza o sistema e instala o servidor `apache2`.
+* **Cópia de Arquivos:** Move o código do site (`src/index.html`) para a pasta pública do Apache (`/var/www/html/`).
+* **Porta:** Expõe a porta `80` (HTTP).
+* **Execução:** Define que o Apache deve iniciar automaticamente e rodar em primeiro plano.
+
+#### Fluxo de Publicação da Imagem:
+
+Se você quiser customizar o site, o fluxo padrão do Docker é:
+
+1. **Baixar o código:** `git clone <repositorio>`
+2. **Construir a imagem local:** `docker build .` (Gera um ID, ex: `14f35de79667`)
+3. **Etiquetar/Nomear:** `docker tag 14f35de79667 rmerces/apache-labs`
+4. **Enviar para a nuvem (Registry):** `docker push rmerces/apache-labs` (Disponibiliza a imagem publicamente no DockerHub).
+
+---
+
+### 2. Provisionando o Serviço de Contêiner no Lightsail
+
+Com a imagem pronta e hospedada no DockerHub, o deploy no Lightsail é feito de forma visual e simplificada:
+
+1. Na tela inicial do Lightsail, acesse a aba **Containers** e clique em **Create container service**.
+2. **Capacidade (Power):** Selecione o plano **Nano ($7/mês)** e defina a quantidade de nós como `1`.
+3. **Configuração de Deploy:** Clique em *Set up deployment* e marque a opção **Specify a custom deployment**.
+4. **Identificação da Imagem:**
+* **Container name:** `apache-labs`
+* **Image:** `docker.io/rmerces/apache-labs` (Endereço oficial do DockerHub).
+
+
+
+---
+
+### 3. Liberando o Acesso (Portas e Endpoint)
+
+Para que as pessoas consigam acessar o site que está dentro do contêiner, precisamos abrir as portas de comunicação:
+
+* **Open Ports (Portas Abertas):** Na seção *Configuration*, clique em **Add open ports** e defina:
+* **Port:** `80`
+* **Protocol:** `HTTP`
+
+
+* **Public Endpoint (Ponto de Acesso Público):** No campo correspondente, selecione o contêiner `apache-labs`. Isso diz à AWS que quem digitar o endereço web do serviço deve ser direcionado diretamente para a porta 80 deste contêiner.
+* **Finalização:** No campo *Identify your service*, digite `apache-labs` e clique em **Create container service**.
+
+---
+
+### 🎯 O que esperar a seguir?
+
+O Lightsail iniciará o processo de provisionamento (status *Pending* ou *Deploying*). Após alguns minutos, a AWS gerará uma URL pública e segura para o seu serviço. Ao acessá-la, você verá a página HTML customizada com o título **"Rmerces LABS"** e a mensagem **"TESTE SITE"**, confirmando o sucesso do deploy do contêiner.
+
+
+---
+
+Aqui está um resumo claro, estruturado e didático sobre o gerenciamento de versões, deploy contínuo e *rollback* de contêineres no AWS Lightsail:
+
+---
+
+## 📦 Aula: Deploy Contínuo, Controle de Versões e Rollback no Lightsail
+
+Uma das maiores vantagens de utilizar o serviço de contêineres do AWS Lightsail é o **gerenciamento automatizado de versões**. Quando atualizamos o código da nossa aplicação, o Lightsail cuida da transição sem tirar o sistema do ar e mantém um histórico que permite reverter erros em segundos.
+
+---
+
+### 1. Verificando o Primeiro Deploy
+
+Assim que o Lightsail conclui o processamento inicial, o status da aplicação muda para **"Active"** no histórico de deploys.
+
+* No topo da página, a AWS disponibiliza um **Public Domain** (um link público seguro).
+* Ao clicar nesse link, a página abrirá exibindo o conteúdo original da nossa imagem Docker: **"TESTE SITE"**.
+
+---
+
+### 2. Atualizando a Aplicação (Nova Versão)
+
+Imagine que o cliente pediu uma alteração no código do site. O fluxo para atualizar o contêiner segue estes passos no terminal e na nuvem:
+
+#### Passo 1: Atualizar o código localmente
+
+1. Entre na pasta do código: `cd src`
+2. Abra o arquivo HTML (`vi index.html`) e altere o texto de `<h1>TESTE SITE</h1>` para `<h1>TESTE SITE 2</h1>`. Salve e saia.
+
+#### Passo 2: Build e Push para o Docker Hub
+
+Volte para a raiz do projeto e envie a nova versão para o seu repositório:
+
+```bash
+cd ..
+docker build .
+docker tag [NOVO_ID_DA_IMAGEM] rmerces/apache-labs
+docker push rmerces/apache-labs
+
+```
+
+#### Passo 3: Atualizar no Lightsail (Redeploy)
+
+1. No painel do Lightsail, vá até o tópico **Deployment versions**.
+2. Clique nos três pontos ao lado da versão ativa e selecione **Modify and redeploy** (e confirme em *Yes, continue*).
+3. Como o endereço da imagem no Docker Hub continua o mesmo, você não precisa alterar nenhum campo. Apenas role até o final e clique em **Save and deploy**.
+
+---
+
+### 3. Histórico e o Poder do *Rollback*
+
+Após o novo deploy, a tabela de versões será atualizada automaticamente:
+
+* **Versão 2:** Status **Active** (Versão atual com o texto "TESTE SITE 2").
+* **Versão 1:** Status **Inactive** (Versão antiga guardada no histórico).
+
+Se você acessar o mesmo link público de antes e atualizar a página, verá o texto atualizado para **"TESTE SITE 2"**.
+
+> 🔄 **O que é Rollback?** Se a nova versão (Versão 2) apresentar algum bug crítico em produção, você não precisa refazer o código correndo. Basta clicar nos três pontos da **Versão 1 (Inativa)**, selecionar *Modify and redeploy* e ativá-la novamente. O Lightsail reverte o site para o estado anterior de forma imediata.
+
+---
+
+### 🛑 Faxina Final do Curso
+
+Para garantir que você não receba cobranças indesejadas no seu cartão de crédito (já que o serviço de contêineres possui custo fixo de $7/mês), certifique-se de apagar o ambiente ao concluir os estudos:
+
+1. Vá para a tela inicial da Lightsail e clique na aba **Containers**.
+2. Clique nos três pontos no canto superior direito do serviço `apache-labs` e selecione **Delete**.
+3. Confirme clicando em **Yes, delete**.
+
+> 🔍 **Dica de Ouro:** Navegue por todas as abas da tela inicial (*Instances, Databases, Networking, Storage*) para garantir que nenhum recurso criado ao longo das aulas ficou esquecido para trás.
+
+Parabéns por concluir essa jornada! Esse curso cobriu os principais pilares de infraestrutura e serviços em nuvem usando a AWS Lightsail.
+
+Aqui está um grande resumo consolidado de tudo o que você aprendeu e dominou ao longo dessas aulas, servindo como o seu mapa mental definitivo dessa tecnologia:
+
+---
+
+## 🗺️ Mapa de Aprendizado: O que você dominou neste curso
+
+```
+                                  [ AWS LIGHTSAIL ]
+                                          |
+    +-------------------+-----------------+-----------------+-------------------+
+    |                   |                 |                 |                   |
+[ Clicar e Rodar ]    [ Computação / VM ] [ Armazenamento ] [ Alta Disponibil.] [ Contêineres ]
+    |                   |                 |                 |                   |
+ • WordPress         • Ubuntu (Instância) • Buckets (S3)    • Snapshots         • Nós (Nodes) Nano
+                     • IP Estático        • Discos (/dev/xvdf)• Load Balancer     • Controle Versões
+                     • IPv4 Firewall      • Montagem (fstab)• Zonas (AZ A/B)    • Rollback Rápido
+
+```
+
+---
+
+### 🚀 1. Facilidade de Provisionamento (Click-to-Launch)
+
+Você viu na prática como o Lightsail elimina a complexidade da nuvem tradicional ao permitir o deploy de aplicações prontas, como o **WordPress**, em questão de poucos cliques, configurando servidor web e banco de dados automaticamente.
+
+### 💻 2. Computação e Gerenciamento de Instâncias (VMs)
+
+Você aprendeu a criar, gerenciar e conectar-se a uma máquina virtual Linux (**Ubuntu**). Além disso, dominou conceitos cruciais de rede e segurança:
+
+* **IPs Estáticos:** Para evitar a perda de comunicação com o servidor quando ele é reiniciado.
+* **Firewall IPv4:** Liberando e controlando portas essenciais como a **22 (SSH)** e a **80 (HTTP)**.
+
+### 💾 3. Armazenamento na Nuvem (Storage)
+
+Você diferenciou e aprendeu a configurar as duas principais formas de guardar dados:
+
+* **Buckets:** Armazenamento de objetos, ideal para arquivos de mídia e backups, focado em baixo custo e alta durabilidade global.
+* **Discos Adicionais (Block Storage):** Perfeitos para expandir o espaço interno da VM. Você realizou tarefas reais de um Administrador Linux: *reconhecer, particionar (`fdisk`), formatar (`ext4`), montar (`mount`)* e automatizar a inicialização editando com segurança o arquivo crítico `/etc/fstab`.
+
+### ⚖️ 4. Alta Disponibilidade e Resiliência
+
+Você elevou o nível da infraestrutura ao criar arquiteturas preparadas para falhas:
+
+* **Snapshots:** Utilizados como cópias de segurança e como moldes para clonar servidores idênticos em minutos.
+* **Zonas de Disponibilidade (AZs):** Distribuindo máquinas entre a *Zona A* e *Zona B* para proteção contra desastres físicos em data centers.
+* **Load Balancer (Balanceador de Carga):** O cérebro que distribui o tráfego de usuários e monitora a saúde dos servidores através de *Health Checks* customizados (utilizando o arquivo `server.txt`).
+
+### 📦 5. Modernização com Contêineres
+
+Por fim, você entrou no mundo DevOps ao provisionar um serviço gerenciado de contêineres:
+
+* Entendeu o fluxo de uma imagem Docker (do *Dockerfile* ao *Docker Hub*).
+* Fez o deploy de uma aplicação Apache na AWS sem precisar gerenciar o sistema operacional por baixo.
+* Aprendeu como o Lightsail lida com o **controle de versões**, permitindo atualizações de código contínuas e o recurso de **Rollback** (reverter para uma versão anterior estável em segundos se algo der errado).
+
+---
+
+### 🛡️ Sua principal soft skill desenvolvida: FinOps (Cultura de Custo)
+
+Ao longo de cada módulo, você desenvolveu uma mentalidade essencial para quem trabalha com nuvem: **a consciência de custos**. Você aprendeu a revisar os planos, entender as taxas de recursos desalocados (como IPs estáticos órfãos) e adquiriu a excelente prática de fazer a "faxina técnica" ao final de cada experimento.
+
+O conhecimento adquirido aqui abre as portas para você desenhar arquiteturas de sistemas ainda mais complexas e eficientes. Muito sucesso nos seus próximos passos e bons estudos! Até o próximo curso! 🚀
