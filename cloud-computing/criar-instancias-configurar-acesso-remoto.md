@@ -679,3 +679,67 @@ A união da nuvem com a virtualização traz benefícios fantásticos para o dia
 ----
 
 
+Aqui está o resumo didático e estruturado do procedimento descrito na transcrição, focado estritamente nas etapas solicitadas para a configuração e o acesso SSH à instância EC2.
+
+---
+
+## Resumo: Acesso Remoto à Instância EC2 via SSH
+
+O objetivo do procedimento é realizar um acesso remoto seguro a uma instância EC2 (AWS) a partir de uma máquina local (Windows com ambiente Linux via WSL) utilizando o protocolo SSH.
+
+### 1. Criando o Par de Chaves de Segurança na AWS
+
+Para estabelecer a conexão, é necessário um par de chaves criptográficas (pública e privada).
+
+* **Caminho no console AWS:** Painel EC2 $\rightarrow$ Rede e segurança $\rightarrow$ Pares de chaves $\rightarrow$ Criar par de chaves.
+* **Configurações utilizadas:**
+* **Nome:** `chave_instancia`
+* **Algoritmo:** ED25519 (mais moderno, seguro e com melhor desempenho que o tradicional RSA).
+* **Formato do arquivo:** `.pem` (específico para uso com SSH).
+
+
+* **Resultado:** O download do arquivo privado `chave_instancia.pem` (387 bytes) é feito automaticamente para o computador.
+
+### 2. Preparando o Ambiente Local (WSL / Ubuntu)
+
+Como o acesso será feito por um ambiente Linux rodando dentro do Windows (WSL/Ubuntu):
+
+1. O arquivo `chave_instancia.pem` foi movido para o diretório de usuário do Ubuntu: `/home/lucasrm/`.
+2. O Prompt de Comando (CMD) do Windows foi aberto e uma nova guia com o ambiente Ubuntu foi iniciada.
+
+### 3. Primeira Tentativa de Acesso e Ajuste de Permissões
+
+A estrutura padrão do comando SSH utilizada foi:
+
+
+$$\text{ssh -i [caminho\_da\_chave] [usuário]@[DNS\_público\_da\_instância]}$$
+
+* **Usuário padrão:** `ec2-user`
+* **Endereço:** Obtido no painel da AWS no campo "DNS IPv4 público" da instância ativa.
+* **Comando executado:** `ssh -i /home/lucasrm/chave_instancia.pem ec2-user@ec2-3-138-109-77.us-east-2.compute.amazonaws.com`
+
+> ⚠️ **Problema:** O acesso inicial resultou em *Permission denied* porque a chave criada ainda não estava associada e autorizada dentro da instância.
+
+### 4. Associando a Chave à Instância (Resolução)
+
+Para resolver o bloqueio de permissão, a chave pública precisou ser inserida manualmente na instância via **EC2 Instance Connect**:
+
+1. **Ajuste de permissão local da chave:** Mudança do modo de acesso do arquivo para torná-lo privado e seguro usando o comando:
+`chmod 600 /home/lucasrm/chave_instancia.pem`
+2. **Extração da chave pública:** Gerada a partir da chave privada local com o comando:
+`ssh-keygen -y -f /home/lucasrm/chave_instancia.pem`
+3. **Configuração na Instância:** Através do navegador (EC2 Instance Connect), o arquivo de chaves autorizadas da instância foi aberto com o editor de texto Nano:
+`nano ~/.ssh/authorized_keys`
+4. A linha de código gerada pelo `ssh-keygen` foi colada integralmente dentro desse arquivo, que foi salvo mantendo o nome original (`Ctrl + X`, confirmação e `Enter`).
+
+### 5. Conexão Bem-Sucedida
+
+Após associar a chave pública dentro da instância, o comando de acesso SSH foi executado novamente no terminal WSL:
+
+`ssh -i /home/lucasrm/chave_instancia.pem ec2-user@ec2-3-138-109-77.us-east-2.compute.amazonaws.com`
+
+**Resultado:** O login foi efetuado com sucesso, permitindo o início da instalação do servidor web.
+
+
+---
+
